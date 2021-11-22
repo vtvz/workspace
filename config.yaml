@@ -1,4 +1,4 @@
-awsVaultProfile: fm-non-prod
+awsVaultProfile: default
 
 # Use "alpine" if you don't need tests
 image: alpine

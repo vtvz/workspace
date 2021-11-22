@@ -1,0 +1,11 @@
+add_newline = true
+
+[aws]
+symbol = "aws "
+
+[kubernetes]
+disabled = false
+
+[kubernetes.context_aliases]
+"arn:aws:eks:.*:.*:cluster/(.*)" = "$1"
+

@@ -1,0 +1,23 @@
+awsVaultProfile: fm-non-prod
+
+# Use "alpine" if you don't need tests
+image: alpine
+
+# Adding new tools require changing Dockerfile.tmpl
+tools:
+  hashicorp/terraform: 1.0.3
+  terraform-linters/tflint: 0.33.1
+  terraform-linters/tflint-ruleset-aws: 0.9.0
+  aquasecurity/tfsec: 0.60.1
+  terraform-docs/terraform-docs: 0.16.0
+  accurics/terrascan: 1.12.0
+  casey/just: 0.10.4
+  direnv/direnv: 2.28.0
+  1password: 1.12.3
+  kubernetes/kubectl: 1.22.3
+
+dotenv:
+  COMPOSE_PROJECT_NAME: FM-INFRA
+
+extraPackages:
+  - rsync

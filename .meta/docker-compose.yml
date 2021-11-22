@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  gomplate:
+    image: hairyhenderson/gomplate:stable-alpine
+    volumes:
+      - .:/src
+    restart: "Never"
+    working_dir: /src
+    user: "1000"

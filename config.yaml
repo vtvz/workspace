@@ -1,11 +1,15 @@
 awsVaultProfile: default
 
 # Use "alpine" if you don't need tests
-image: alpine
+image: golang:{{ .version }}-alpine
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
+  golang/go: 1.17.3
+  golangci/golangci-lint: 1.43.0
+
   hashicorp/terraform: 1.0.3
+  gruntwork-io/terragrunt: 0.35.12
   terraform-linters/tflint: 0.33.1
   terraform-linters/tflint-ruleset-aws: 0.9.0
   aquasecurity/tfsec: 0.60.1
@@ -14,10 +18,12 @@ tools:
   casey/just: 0.10.4
   direnv/direnv: 2.28.0
   1password: 1.12.3
-  kubernetes/kubectl: 1.22.3
+  kubernetes/kubectl: 1.22.4
+  mozilla/sops: 3.7.1
+  harness/drone-cli: 1.4.0
 
 dotenv:
-  COMPOSE_PROJECT_NAME: FM-INFRA
+  COMPOSE_PROJECT_NAME: TF-INFRA
 
 extraPackages:
   - rsync

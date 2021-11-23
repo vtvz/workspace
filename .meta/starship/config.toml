@@ -2,6 +2,7 @@ add_newline = true
 
 [aws]
 symbol = "aws "
+format = 'on [$symbol($profile )(\($region\) )(\[$duration\] )]($style)'
 
 [kubernetes]
 disabled = false

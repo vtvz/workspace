@@ -1,4 +1,9 @@
+{{ $usesGolang := hasPrefix .config.image "golang" -}}
+{{ $golang := index .config.tools "golang/go" -}}
+{{ $golangci_lint := index .config.tools "golangci/golangci-lint" -}}
+
 {{ $terraform := index .config.tools "hashicorp/terraform" -}}
+{{ $terragrunt := index .config.tools "gruntwork-io/terragrunt" -}}
 {{ $tflint := index .config.tools "terraform-linters/tflint" -}}
 {{ $tflint_aws := index .config.tools "terraform-linters/tflint-ruleset-aws" -}}
 {{ $tfsec := index .config.tools "aquasecurity/tfsec" -}}
@@ -6,10 +11,12 @@
 {{ $terrascan := index .config.tools "accurics/terrascan" -}}
 {{ $just := index .config.tools "casey/just" -}}
 {{ $direnv := index .config.tools "direnv/direnv" -}}
-{{ $1password := index .config.tools "1password" -}}
+{{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
+{{ $sops := index .config.tools "mozilla/sops" -}}
+{{ $drone := index .config.tools "harness/drone-cli" -}}
 
-FROM {{ .config.image }} as core
+FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
 # hadolint ignore=DL3018
 RUN apk add --update --no-cache \
     bash curl git openssh openssh-client jq graphviz ncurses nano libc6-compat {{ join .config.extraPackages " " }}
@@ -21,6 +28,10 @@ ENV EDITOR nano
 FROM core as terraform
 RUN curl -L https://releases.hashicorp.com/terraform/{{ $terraform }}/terraform_{{ $terraform }}_linux_amd64.zip -o /tmp/terraform.zip \
     && unzip /tmp/terraform.zip -d /tmp/ && rm /tmp/terraform.zip
+
+FROM core as terragrunt
+RUN curl -L https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
+    && chmod +x /tmp/terragrunt
 
 FROM core as tflint
 RUN curl -L https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip -o /tmp/tflint.zip \
@@ -39,6 +50,7 @@ RUN curl -L https://github.com/terraform-docs/terraform-docs/releases/download/v
     && chmod +x /tmp/terraform-docs
 
 FROM core as terrascan
+# hadolint ignore=DL3003
 RUN curl -L https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz -o /tmp/terrascan.tar.gz \
     && cd /tmp && tar -xf /tmp/terrascan.tar.gz terrascan && rm /tmp/terrascan.tar.gz
 
@@ -51,15 +63,35 @@ RUN curl -L https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/di
     && chmod +x /tmp/direnv
 
 FROM core as op
-RUN curl -L https://cache.agilebits.com/dist/1P/op/pkg/v{{ $1password }}/op_linux_amd64_v{{ $1password }}.zip -o /tmp/op.zip \
+RUN curl -L https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
     && unzip /tmp/op.zip -d /tmp/ && rm /tmp/op.zip
 
 FROM core as kubectl
 RUN curl -L https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
 
+FROM core as drone
+# hadolint ignore=DL4006
+RUN curl -L https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
+    && cp drone /tmp && chmod +x /tmp/drone
+
+FROM core as sops
+RUN curl -L https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
+    && chmod +x /tmp/sops
+
+{{ if $usesGolang }}
+FROM core as golangci_lint
+# hadolint ignore=DL4006
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
+{{- end }}
+
 FROM core
 
+{{- if $usesGolang }}
+ENV CGO_ENABLED=0
+{{- end }}
+
+# hadolint ignore=DL3018,DL3013,DL3042
 RUN apk add --no-cache \
         python3 \
         py3-pip \
@@ -71,17 +103,24 @@ RUN apk add --no-cache \
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh)" -- -y
 
 ENV VERSIONS='{ \
+  {{- if $usesGolang }}
+  "golangci/golangci-lint":"v{{ $golangci_lint }}", \
+  {{- end }}
   "hashicorp/terraform":"v{{ $terraform }}", \
+  "gruntwork-io/terragrunt":"v{{ $terragrunt }}", \
   "terraform-linters/tflint":"v{{ $tflint }}", \
   "terraform-linters/tflint-ruleset-aws":"v{{ $tflint_aws }}", \
   "aquasecurity/tfsec":"v{{ $tfsec }}", \
   "terraform-docs/terraform-docs":"v{{ $terraform_docs }}", \
   "accurics/terrascan":"v{{ $terrascan }}", \
   "casey/just":"{{ $just }}", \
+  "mozilla/sops":"v{{ $sops }}", \
+  "harness/drone-cli":"v{{ $drone }}", \
   "direnv/direnv":"v{{ $direnv }}" \
 }'
 
 COPY --from=terraform /tmp/terraform /usr/local/bin/terraform
+COPY --from=terragrunt /tmp/terragrunt /usr/local/bin/terragrunt
 COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
 COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec
@@ -91,9 +130,12 @@ COPY --from=just /tmp/just /usr/local/bin/just
 COPY --from=direnv /tmp/direnv /usr/local/bin/direnv
 COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
+COPY --from=sops /tmp/sops /usr/local/bin/sops
+COPY --from=drone /tmp/drone /usr/local/bin/drone
 
 RUN adduser -h /home/user -s /bin/bash -u 1000 -D user
 
+# hadolint ignore=SC2016
 RUN echo 'eval "$(direnv hook bash)"; eval $(ssh-agent); ssh-add; eval "$(starship init bash)"' > /home/user/.bashrc
 
 ENV PS1 '\s-\v:\w\$ '

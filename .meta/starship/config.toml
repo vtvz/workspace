@@ -10,3 +10,6 @@ disabled = false
 [kubernetes.context_aliases]
 "arn:aws:eks:.*:.*:cluster/(.*)" = "$1"
 
+
+[status]
+disabled = false

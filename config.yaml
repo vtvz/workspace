@@ -15,10 +15,16 @@ tools:
   aquasecurity/tfsec: 0.60.1
   terraform-docs/terraform-docs: 0.16.0
   accurics/terrascan: 1.12.0
+
+  hadolint/hadolint: 2.8.0
+  kubernetes/kubectl: 1.22.4
+  ahmetb/kubectx: 0.9.4
+
   casey/just: 0.10.4
   direnv/direnv: 2.28.0
+  starship/starship: 1.0.0
+
   1password: 1.12.3
-  kubernetes/kubectl: 1.22.4
   mozilla/sops: 3.7.1
   harness/drone-cli: 1.4.0
 

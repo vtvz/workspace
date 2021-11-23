@@ -16,7 +16,7 @@ function check {
     fi
 }
 
-for component in $(echo "$VERSIONS" | jq -cM 'to_entries | .[]'); do
+for component in $(echo "$GH_VERSIONS" | jq -cM 'to_entries | .[]'); do
   repo=$(echo "$component" | jq -r '.key')
   current=$(echo "$component" | jq -r '.value')
   latest=$(curl -s "https://api.github.com/repos/${repo}/releases/latest" | jq -r '.tag_name')

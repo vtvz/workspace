@@ -7,8 +7,9 @@ services:
     volumes:
       - .:/terraform
       - ~/.ssh:/home/user/.ssh
-      - .meta/op:/home/user/.config/op
-      - .meta/kube:/home/user/.kube
+      - .meta/var/op:/home/user/.config/op
+      - .meta/var/kube:/home/user/.kube
+      - .meta/.tflint.hcl:/home/user/.tflint.hcl
     env_file:
       - .env
     environment:

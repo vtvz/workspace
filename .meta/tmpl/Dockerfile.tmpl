@@ -19,42 +19,47 @@
 {{ $starship := index .config.tools "starship/starship" -}}
 {{ $hadolint := index .config.tools "hadolint/hadolint" -}}
 
+{{ $awscli := index .config.tools "awscli" -}}
+
 FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
-# hadolint ignore=DL3018
-RUN apk add --update --no-cache \
-    bash curl git openssh openssh-client jq graphviz ncurses nano libc6-compat bash-completion {{ join .config.extraPackages " " }}
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+      bash curl git openssh-client jq graphviz nano bash-completion groff unzip \
+    && rm -rf /var/lib/apt/lists/*
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV EDITOR nano
 
 FROM core as terraform
-RUN curl -L https://releases.hashicorp.com/terraform/{{ $terraform }}/terraform_{{ $terraform }}_linux_amd64.zip -o /tmp/terraform.zip \
+RUN curl -fL https://releases.hashicorp.com/terraform/{{ $terraform }}/terraform_{{ $terraform }}_linux_amd64.zip -o /tmp/terraform.zip \
     && unzip /tmp/terraform.zip -d /tmp/ && rm /tmp/terraform.zip
 
 FROM core as terragrunt
-RUN curl -L https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
+RUN curl -fL https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
     && chmod +x /tmp/terragrunt
 
 FROM core as tflint
-RUN curl -L https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip -o /tmp/tflint.zip \
+RUN curl -fL https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip -o /tmp/tflint.zip \
     && unzip /tmp/tflint.zip -d /tmp/ && rm /tmp/tflint.zip
 
 FROM core as tflint_aws
-RUN curl -L https://github.com/terraform-linters/tflint-ruleset-aws/releases/download/v{{ $tflint_aws }}/tflint-ruleset-aws_linux_amd64.zip  -o /tmp/tflint-ruleset-aws.zip \
+RUN curl -fL https://github.com/terraform-linters/tflint-ruleset-aws/releases/download/v{{ $tflint_aws }}/tflint-ruleset-aws_linux_amd64.zip  -o /tmp/tflint-ruleset-aws.zip \
     && unzip /tmp/tflint-ruleset-aws.zip -d /tmp/ && rm /tmp/tflint-ruleset-aws.zip
 
 FROM core as tfsec
-RUN curl -L https://github.com/aquasecurity/tfsec/releases/download/v{{ $tfsec }}/tfsec-linux-amd64 -o /tmp/tfsec \
+RUN curl -fL https://github.com/aquasecurity/tfsec/releases/download/v{{ $tfsec }}/tfsec-linux-amd64 -o /tmp/tfsec \
     && chmod +x /tmp/tfsec
 
 FROM core as terraform_docs
-RUN curl -L https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64 -o /tmp/terraform-docs \
-    && chmod +x /tmp/terraform-docs
+# hadolint ignore=DL3003
+RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64.tar.gz -o /tmp/terraform-docs.tar.gz \
+    && cd /tmp && tar -xf /tmp/terraform-docs.tar.gz terraform-docs && rm /tmp/terraform-docs.tar.gz
 
 FROM core as terrascan
 # hadolint ignore=DL3003
-RUN curl -L https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz -o /tmp/terrascan.tar.gz \
+RUN curl -fL https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz -o /tmp/terrascan.tar.gz \
     && cd /tmp && tar -xf /tmp/terrascan.tar.gz terrascan && rm /tmp/terrascan.tar.gz
 
 FROM core as just
@@ -62,35 +67,38 @@ FROM core as just
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /tmp/ --tag {{ $just }}
 
 FROM core as direnv
-RUN curl -L https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/direnv.linux-amd64 -o /tmp/direnv \
+RUN curl -fL https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/direnv.linux-amd64 -o /tmp/direnv \
     && chmod +x /tmp/direnv
 
 FROM core as hadolint
-RUN curl -L https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
+RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
     && chmod +x /tmp/hadolint
 
 FROM core as op
-RUN curl -L https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
+RUN curl -fL https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
     && unzip /tmp/op.zip -d /tmp/ && rm /tmp/op.zip
 
 FROM core as kubectl
-RUN curl -L https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
+RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
 
 FROM core as kubectx
 # hadolint ignore=DL4006
-RUN curl -L https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubectx_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
-    && cp kubectx /tmp && chmod +x /tmp/kubectx \
-    && curl -L https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
+RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubectx_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
+    && cp kubectx /tmp && chmod +x /tmp/kubectx
+
+FROM core as kubens
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp && chmod +x /tmp/kubens
 
 FROM core as drone
 # hadolint ignore=DL4006
-RUN curl -L https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
+RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
     && cp drone /tmp && chmod +x /tmp/drone
 
 FROM core as sops
-RUN curl -L https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
+RUN curl -fL https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
     && chmod +x /tmp/sops
 
 {{ if $usesGolang }}
@@ -101,15 +109,26 @@ RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $gol
 
 FROM core
 
-# hadolint ignore=DL3018,DL3013,DL3042
-RUN apk add --no-cache \
-        python3 \
-        py3-pip \
-        groff \
-    && pip3 install --upgrade pip \
-    && pip3 install --no-cache-dir \
-        awscli \
-    && rm -rf /var/cache/apk/*
+# hadolint ignore=DL3008
+RUN apt-get update \
+    && apt-get install --no-install-recommends -y \
+      python3 python3-pip {{ join .config.extraPackages " " }} \
+    && rm -rf /var/lib/apt/lists/*
+
+# hadolint ignore=DL3003,DL4006
+RUN tmp="$(mktemp -d)" \
+  && cd "$tmp" \
+  && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-{{ $awscli }}.zip" -o "awscliv2.zip" \
+  && unzip awscliv2.zip \
+  && ./aws/install \
+  && rm -rf "$tmp"
+
+ENV AWS_CLI_VERSION="{{ $awscli }}"
+
+RUN pip3 install --no-cache-dir \
+    {{ range $p, $v := .config.tools.pip -}}
+        {{ $p }}=={{ $v }} \
+    {{ end }};
 
 # hadolint ignore=DL4006
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
@@ -128,43 +147,45 @@ COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
-COPY --from=kubectx /tmp/kubens /usr/local/bin/kns
+COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 
 ENV GH_VERSIONS='{ \
   {{- if $usesGolang }}
-  "golangci/golangci-lint":"v{{ $golangci_lint }}", \
+  "golangci/golangci-lint":"{{ $golangci_lint }}", \
   {{- end }}
-  "hashicorp/terraform":"v{{ $terraform }}", \
-  "gruntwork-io/terragrunt":"v{{ $terragrunt }}", \
-  "terraform-linters/tflint":"v{{ $tflint }}", \
-  "terraform-linters/tflint-ruleset-aws":"v{{ $tflint_aws }}", \
-  "aquasecurity/tfsec":"v{{ $tfsec }}", \
-  "terraform-docs/terraform-docs":"v{{ $terraform_docs }}", \
-  "accurics/terrascan":"v{{ $terrascan }}", \
-  "ahmetb/kubectx":"v{{ $kubectx }}", \
+  "hashicorp/terraform":"{{ $terraform }}", \
+  "gruntwork-io/terragrunt":"{{ $terragrunt }}", \
+  "terraform-linters/tflint":"{{ $tflint }}", \
+  "terraform-linters/tflint-ruleset-aws":"{{ $tflint_aws }}", \
+  "aquasecurity/tfsec":"{{ $tfsec }}", \
+  "terraform-docs/terraform-docs":"{{ $terraform_docs }}", \
+  "accurics/terrascan":"{{ $terrascan }}", \
+  "ahmetb/kubectx":"{{ $kubectx }}", \
   "casey/just":"{{ $just }}", \
-  "direnv/direnv":"v{{ $direnv }}", \
-  "starship/starship":"v{{ $starship }}", \
-  "mozilla/sops":"v{{ $sops }}", \
-  "harness/drone-cli":"v{{ $drone }}", \
-  "hadolint/hadolint":"v{{ $hadolint }}" \
+  "direnv/direnv":"{{ $direnv }}", \
+  "starship/starship":"{{ $starship }}", \
+  "mozilla/sops":"{{ $sops }}", \
+  "harness/drone-cli":"{{ $drone }}", \
+  "hadolint/hadolint":"{{ $hadolint }}" \
 }'
 
-RUN adduser -h /home/user -s /bin/bash -u 1000 -D user
+ENV PYPI_VERSIONS='{ \
+  {{ range $p, $v := .config.tools.pip -}}
+    "{{ $p }}": "{{ $v }}", \
+  {{ end -}}
+}'
 
-RUN mkdir /etc/bash_completion.d \
-    && kubectl completion bash > /etc/bash_completion.d/kubectl \
-    && curl -L "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
-    && curl -L "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens
+RUN adduser --home /home/user --shell /bin/bash --uid 1000 --disabled-password user
 
-# hadolint ignore=SC2016
-RUN { \
-      echo 'eval "$(direnv hook bash)"'; \
-      echo 'eval $(ssh-agent);' 'ssh-add'; \
-      echo 'eval "$(starship init bash)"'; \
-      echo 'source /etc/profile.d/bash_completion.sh'; \
-    } > /home/user/.bashrc
+RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens \
+    && just --completions bash > /etc/bash_completion.d/just \
+    && echo 'complete -C /usr/local/bin/terraform terraform' > /etc/bash_completion.d/terraform \
+    && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
+
+COPY .meta/tmpl/.bashrc /home/user/.bashrc
 
 {{- if $usesGolang }}
 ENV CGO_ENABLED=0
@@ -172,5 +193,7 @@ ENV CGO_ENABLED=0
 ENV PATH="/terraform/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="/terraform/.meta/direnv"
 ENV STARSHIP_CONFIG="/terraform/.meta/starship/config.toml"
+
+# RUN apk add perl
 
 ENTRYPOINT []

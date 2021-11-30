@@ -1,4 +1,8 @@
 add_newline = true
+format = "$all$directory$character"
+
+[terraform]
+symbol = "tf "
 
 [aws]
 symbol = "aws "
@@ -6,10 +10,13 @@ format = 'on [$symbol($profile )(\($region\) )(\[$duration\] )]($style)'
 
 [kubernetes]
 disabled = false
+format = '[$symbol$context( \($namespace\))]($style) '
 
 [kubernetes.context_aliases]
 "arn:aws:eks:.*:.*:cluster/(.*)" = "$1"
 
+[directory]
+style = "dimmed"
 
 [status]
 disabled = false

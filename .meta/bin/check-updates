@@ -4,23 +4,29 @@ set -uo pipefail
 
 action=${1:-check}
 
-return_code=0
+available=0
 applied=0
+
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+reset=$(tput sgr0)
+bold=$(tput bold)
+
 function check {
     repo=$1
     current=$2
     latest=$3
 
     if [[ "$latest" != "$current" ]]; then
-      echo "* Update for $repo available $latest (current $current)"
-      return_code=$((return_code+1))
+      echo "${red}* Update for $repo available $latest (current $current)${reset}"
+      available=$((available+1))
 
       if [[ -f config.yaml && $action == "apply" ]]; then
         sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" config.yaml
         applied=$((applied+1))
       fi
     else
-      echo "- $repo up to date ($current)"
+      echo "${green}- $repo up to date ($current)${reset}"
     fi
 
 }
@@ -72,7 +78,9 @@ check "awscli" "$current" "$latest"
 op update
 
 if [[ $applied -ne 0 ]]; then
-  echo 'Rebuild your Docker image with new versions'
+  echo "${red}${bold}Rebuild your Docker image with new versions${reset}"
+elif [[ $available -ne 0 ]]; then
+  echo "${red}${bold}New (${available}) updates are available${reset}"
 fi
 
-exit $return_code
+exit $available

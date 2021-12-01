@@ -1,5 +1,5 @@
 add_newline = true
-format = "$all$directory$character"
+format = "[ vtvz's workspace ](bg:#1380EC fg:#1e1e1e bold) $all$directory$character"
 
 [terraform]
 symbol = "tf "

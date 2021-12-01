@@ -1,11 +1,13 @@
 version: "3.8"
 services:
-  terraform:
+  workspace:
     build:
       context: .
       dockerfile: .meta/var/Dockerfile
+      args:
+        workdir: /workspace
     volumes:
-      - .:/terraform
+      - .:/workspace
       - ~/.ssh:/home/user/.ssh
       - .meta/var/op:/home/user/.config/op
       - .meta/var/kube:/home/user/.kube
@@ -23,5 +25,4 @@ services:
       AWS_SECURITY_TOKEN: $AWS_SECURITY_TOKEN
       IN_DOCKER: "true"
     restart: "Never"
-    working_dir: /terraform
     user: "1000"

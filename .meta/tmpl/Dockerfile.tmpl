@@ -181,9 +181,11 @@ COPY .meta/tmpl/.bashrc /home/user/.bashrc
 {{- if $usesGolang }}
 ENV CGO_ENABLED=0
 {{- end }}
-ENV PATH="/terraform/.meta/bin:${PATH}"
-ENV DIRENV_CONFIG="/terraform/.meta/direnv"
-ENV STARSHIP_CONFIG="/terraform/.meta/starship/config.toml"
+ARG workdir="/workspace"
+
+ENV PATH="$workdir/.meta/bin:${PATH}"
+ENV DIRENV_CONFIG="$workdir/.meta/direnv"
+ENV STARSHIP_CONFIG="$workdir/.meta/starship/config.toml"
 
 # RUN apk add perl
 

@@ -1,4 +1,6 @@
 set dotenv-load := false
+container := "workspace"
+workdir := "/workspace"
 
 # Show this help
 help:
@@ -17,12 +19,12 @@ build:
 
 validate:
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
-  cat .meta/var/Dockerfile | docker-compose run --rm terraform hadolint -
-  docker-compose run --rm terraform pre-commit run
+  cat .meta/var/Dockerfile | docker-compose run --rm {{ container }} hadolint -
+  docker-compose run --rm {{ container }} pre-commit run
 
 # Run bash terminal inside container
 sh:
-  docker-compose run -w /terraform/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm terraform bash
+  docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm {{ container }} bash
 
 # Switch to AWS profile using aws-vault
 profile profile="":
@@ -42,13 +44,13 @@ _gomplate args:
 terraform_upgrade version=`just _gomplate "-i '{{ index .config.tools \"hashicorp/terraform\" }}' --exec-pipe -- tr -d '\r'"`:
   #!/bin/bash -xe
   RESULT=0;
-  docker-compose run terraform bash -ec " \
+  docker-compose run {{ container }} bash -ec " \
     grep 'hashicorp/terraform: {{ version }}' config.yaml; \
     grep 'required_version = \"{{ version }}\"' projects/provider.tf.global; \
     grep 'TERRAFORM_VERSION={{ version }}' .travis.yml; \
   " || RESULT=$?;
 
-  docker-compose run terraform bash -ec " \
+  docker-compose run {{ container }} bash -ec " \
     sed -i 's|hashicorp/terraform: .*|hashicorp/terraform: {{ version }}|g' config.yaml; \
     sed -i 's|required_version = ".*"|required_version = \"{{ version }}\"|g' projects/provider.tf.global; \
     sed -i 's|TERRAFORM_VERSION=.*|TERRAFORM_VERSION={{ version }}|g' .travis.yml; \

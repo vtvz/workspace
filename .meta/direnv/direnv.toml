@@ -1,2 +1,2 @@
 [whitelist]
-prefix = [ "/terraform" ]
+prefix = [ "/workspace" ]

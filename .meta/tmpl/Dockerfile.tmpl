@@ -1,24 +1,25 @@
 {{ $usesGolang := hasPrefix .config.image "golang" -}}
 {{ $golang := index .config.tools "golang/go" -}}
-{{ $golangci_lint := index .config.tools "golangci/golangci-lint" -}}
 
-{{ $terraform := index .config.tools "hashicorp/terraform" -}}
-{{ $terragrunt := index .config.tools "gruntwork-io/terragrunt" -}}
-{{ $tflint := index .config.tools "terraform-linters/tflint" -}}
-{{ $tflint_aws := index .config.tools "terraform-linters/tflint-ruleset-aws" -}}
-{{ $tfsec := index .config.tools "aquasecurity/tfsec" -}}
-{{ $terraform_docs := index .config.tools "terraform-docs/terraform-docs" -}}
-{{ $terrascan := index .config.tools "accurics/terrascan" -}}
-{{ $just := index .config.tools "casey/just" -}}
-{{ $direnv := index .config.tools "direnv/direnv" -}}
+{{ $github := .config.tools.github -}}
+{{ $golangci_lint := index $github "golangci/golangci-lint" -}}
+{{ $terraform := index $github "hashicorp/terraform" -}}
+{{ $terragrunt := index $github "gruntwork-io/terragrunt" -}}
+{{ $tflint := index $github "terraform-linters/tflint" -}}
+{{ $tflint_aws := index $github "terraform-linters/tflint-ruleset-aws" -}}
+{{ $tfsec := index $github "aquasecurity/tfsec" -}}
+{{ $terraform_docs := index $github "terraform-docs/terraform-docs" -}}
+{{ $terrascan := index $github "accurics/terrascan" -}}
+{{ $hadolint := index $github "hadolint/hadolint" -}}
+{{ $kubectx := index $github "ahmetb/kubectx" -}}
+{{ $just := index $github "casey/just" -}}
+{{ $direnv := index $github "direnv/direnv" -}}
+{{ $starship := index $github "starship/starship" -}}
+{{ $sops := index $github "mozilla/sops" -}}
+{{ $drone := index $github "harness/drone-cli" -}}
+
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
-{{ $sops := index .config.tools "mozilla/sops" -}}
-{{ $drone := index .config.tools "harness/drone-cli" -}}
-{{ $kubectx := index .config.tools "ahmetb/kubectx" -}}
-{{ $starship := index .config.tools "starship/starship" -}}
-{{ $hadolint := index .config.tools "hadolint/hadolint" -}}
-
 {{ $awscli := index .config.tools "awscli" -}}
 
 FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
@@ -150,29 +151,19 @@ COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 
-ENV GH_VERSIONS='{ \
-  {{- if $usesGolang }}
-  "golangci/golangci-lint":"{{ $golangci_lint }}", \
-  {{- end }}
-  "hashicorp/terraform":"{{ $terraform }}", \
-  "gruntwork-io/terragrunt":"{{ $terragrunt }}", \
-  "terraform-linters/tflint":"{{ $tflint }}", \
-  "terraform-linters/tflint-ruleset-aws":"{{ $tflint_aws }}", \
-  "aquasecurity/tfsec":"{{ $tfsec }}", \
-  "terraform-docs/terraform-docs":"{{ $terraform_docs }}", \
-  "accurics/terrascan":"{{ $terrascan }}", \
-  "ahmetb/kubectx":"{{ $kubectx }}", \
-  "casey/just":"{{ $just }}", \
-  "direnv/direnv":"{{ $direnv }}", \
-  "starship/starship":"{{ $starship }}", \
-  "mozilla/sops":"{{ $sops }}", \
-  "harness/drone-cli":"{{ $drone }}", \
-  "hadolint/hadolint":"{{ $hadolint }}" \
+{{ $githubLast := index ($github | keys | reverse) 0 }}
+ENV GITHUB_VERSIONS='{ \
+  {{ range $p, $v := $github -}}
+    "{{ $p }}": "{{ $v }}"
+    {{- if ne $p $githubLast }},{{ end }} \
+  {{ end -}}
 }'
 
-ENV PYPI_VERSIONS='{ \
+{{ $pypiLast := index (.config.tools.pip | keys | reverse) 0 }}
+ENV PIP_VERSIONS='{ \
   {{ range $p, $v := .config.tools.pip -}}
-    "{{ $p }}": "{{ $v }}", \
+    "{{ $p }}": "{{ $v }}"
+    {{- if ne $p $pypiLast }},{{ end }} \
   {{ end -}}
 }'
 

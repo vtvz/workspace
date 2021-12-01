@@ -31,7 +31,7 @@ if [[ -n "${GH_BASIC_AUTH:-}" ]]; then
 fi
 trap 'rv=$?; rm -f $curl_cfg; exit $rv' 0 2 3 15
 
-for component in $(echo "$GH_VERSIONS" | jq -cM 'to_entries | .[]'); do
+for component in $(echo "$GITHUB_VERSIONS" | jq -cM 'to_entries | .[]'); do
   repo=$(echo "$component" | jq -r '.key')
   current=$(echo "$component" | jq -r '.value')
 
@@ -44,7 +44,7 @@ for component in $(echo "$GH_VERSIONS" | jq -cM 'to_entries | .[]'); do
   fi
 done
 
-for component in $(echo "$PYPI_VERSIONS" | sed 's/\(.*\),/\1/g' | jq -cM 'to_entries | .[]'); do
+for component in $(echo "$PIP_VERSIONS" | jq -cM 'to_entries | .[]'); do
   repo=$(echo "$component" | jq -r '.key')
   current=$(echo "$component" | jq -r '.value')
   latest=$(curl -sf "https://pypi.org/pypi/${repo}/json" | jq -r '.info.version')

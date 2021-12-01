@@ -18,6 +18,7 @@ build:
 validate:
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
   cat .meta/var/Dockerfile | docker-compose run --rm terraform hadolint -
+  docker-compose run --rm terraform pre-commit run
 
 # Run bash terminal inside container
 sh:
@@ -55,8 +56,11 @@ terraform_upgrade version=`just _gomplate "-i '{{ index .config.tools \"hashicor
 
   exit $RESULT;
 
-merge:
+# Install workspace to the project
+install:
+  @[ ! -L "{{ justfile_directory() }}/.meta" ] || (echo "Should be ran in the template itself" && false)
   ln -fs {{ file_name(justfile_directory()) }}/.meta ../.meta
+  -rm {{ justfile_directory() }}/.meta/.meta
   ln -fs {{ file_name(justfile_directory()) }}/config.yaml ../config.yaml
   ln -fs {{ file_name(justfile_directory()) }}/docker-compose.yml ../docker-compose.yml
   ln -fs {{ file_name(justfile_directory()) }}/Justfile ../Justfile

@@ -75,6 +75,11 @@ current=$AWS_CLI_VERSION
 latest=$(curl -sf "https://api.github.com/repos/aws/aws-cli/tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
 check "awscli" "$current" "$latest"
 
+#git-secrets
+current=$GIT_SECRETS_VERSION
+latest=$(curl -sf "https://api.github.com/repos/awslabs/git-secrets/tags" | jq -r '[.[] | select(.name) | .name][0]')
+check "awslabs/git-secrets" "$current" "$latest"
+
 op update
 
 if [[ $applied -ne 0 ]]; then

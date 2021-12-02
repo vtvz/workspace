@@ -9,7 +9,7 @@ tools:
   golang/go: 1.17.3
   kubernetes/kubectl: 1.22.4
   1password: 1.12.3
-  awscli: 2.4.3
+  awscli: 2.4.4
 
   github:
     golangci/golangci-lint: 1.43.0

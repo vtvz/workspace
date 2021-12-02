@@ -20,7 +20,7 @@
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
-{{ $awscli := index .config.tools "awscli" -}}
+{{ $awscli := index .config.tools "aws/aws-cli" -}}
 {{ $git_secrets := index .config.tools "awslabs/git-secrets" -}}
 
 FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
@@ -159,7 +159,7 @@ COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
-COPY --from=git_secrets /tmp/git-secrets
+COPY --from=git_secrets /tmp/git-secrets /usr/local/bin/git-secrets
 
 ENV GIT_SECRETS_VERSION="{{ $git_secrets }}"
 
@@ -179,14 +179,21 @@ ENV PIP_VERSIONS='{ \
   {{ end -}}
 }'
 
-RUN adduser --home /home/user --shell /bin/bash --uid 1000 --disabled-password user
-
 RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens \
     && just --completions bash > /etc/bash_completion.d/just \
     && echo 'complete -C /usr/local/bin/terraform terraform' > /etc/bash_completion.d/terraform \
     && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
+
+RUN adduser --home /home/user --shell /bin/bash --uid 1000 --disabled-password user
+
+USER 1000
+
+RUN git-secrets --register-aws --global \
+    && git secrets --add-provider --global -- cat .git-secrets-patterns \
+    && git secrets --add --allowed --global "\\.idea" \
+    && git secrets --add --allowed --global "\\.git-secrets-patterns"
 
 COPY .meta/tmpl/.bashrc /home/user/.bashrc
 

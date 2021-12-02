@@ -73,7 +73,7 @@ fi
 #awscli
 current=$AWS_CLI_VERSION
 latest=$(curl -sf "https://api.github.com/repos/aws/aws-cli/tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
-check "awscli" "$current" "$latest"
+check "aws/aws-cli" "$current" "$latest"
 
 #git-secrets
 current=$GIT_SECRETS_VERSION

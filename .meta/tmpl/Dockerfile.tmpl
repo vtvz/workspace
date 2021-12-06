@@ -21,7 +21,6 @@
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
 {{ $awscli := index .config.tools "aws/aws-cli" -}}
-{{ $git_secrets := index .config.tools "awslabs/git-secrets" -}}
 
 FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
 # hadolint ignore=DL3008
@@ -103,14 +102,6 @@ FROM core as sops
 RUN curl -fL https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
     && chmod +x /tmp/sops
 
-FROM core as git_secrets
-# hadolint ignore=DL3003,DL4006
-RUN tmp="$(mktemp -d)" \
-  && curl -Lf https://github.com/awslabs/git-secrets/archive/refs/tags/{{ $git_secrets }}.zip -o "$tmp/git-secrets.zip" \
-  && unzip "$tmp/git-secrets.zip" -d "$tmp" \
-  && cp "$tmp/git-secrets-{{ $git_secrets }}/git-secrets" /tmp/ \
-  && rm -rf "$tmp"
-
 {{ if $usesGolang }}
 FROM core as golangci_lint
 # hadolint ignore=DL4006
@@ -159,9 +150,6 @@ COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
-COPY --from=git_secrets /tmp/git-secrets /usr/local/bin/git-secrets
-
-ENV GIT_SECRETS_VERSION="{{ $git_secrets }}"
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \
@@ -186,21 +174,18 @@ RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
     && echo 'complete -C /usr/local/bin/terraform terraform' > /etc/bash_completion.d/terraform \
     && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
 
-RUN adduser --home /home/user --shell /bin/bash --uid 1000 --disabled-password user
+ARG home="/home/user"
+RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user
 
 USER 1000
-
-RUN git-secrets --register-aws --global \
-    && git secrets --add-provider --global -- cat .git-secrets-patterns \
-    && git secrets --add --allowed --global "\\.idea" \
-    && git secrets --add --allowed --global "\\.git-secrets-patterns"
-
-COPY .meta/tmpl/.bashrc /home/user/.bashrc
 
 {{- if $usesGolang }}
 ENV CGO_ENABLED=0
 {{- end }}
 ARG workdir="/workspace"
+
+RUN mv "$home/.bashrc" "$home/.bashrc_original" \
+    && ln -s "$workdir/.meta/tmpl/.bashrc" "$home/.bashrc"
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"

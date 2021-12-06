@@ -6,11 +6,10 @@ image: golang:{{ .version }}
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
-  golang/go: 1.17.3
+  golang/go: 1.17.4
   kubernetes/kubectl: 1.22.4
-  awslabs/git-secrets: 1.3.0
   1password: 1.12.3
-  aws/aws-cli: 2.4.4
+  aws/aws-cli: 2.4.5
 
   github:
     golangci/golangci-lint: 1.43.0
@@ -18,7 +17,7 @@ tools:
     hashicorp/terraform: 1.0.11
     gruntwork-io/terragrunt: 0.35.13
     terraform-linters/tflint: 0.33.1
-    terraform-linters/tflint-ruleset-aws: 0.9.0
+    terraform-linters/tflint-ruleset-aws: 0.10.0
     aquasecurity/tfsec: 0.61.3
     terraform-docs/terraform-docs: 0.16.0
     accurics/terrascan: 1.12.0
@@ -26,7 +25,7 @@ tools:
     hadolint/hadolint: 2.8.0
     ahmetb/kubectx: 0.9.4
 
-    casey/just: 0.10.4
+    casey/just: 0.10.5
     direnv/direnv: 2.29.0
     starship/starship: 1.0.0
 

@@ -12,6 +12,7 @@ services:
       - .meta/var/op:/home/user/.config/op
       - .meta/var/kube:/home/user/.kube
       - .meta/.tflint.hcl:/home/user/.tflint.hcl
+      - .meta/var/.bash_history:/home/user/.bash_history
     env_file:
       - .env
     environment:

@@ -16,6 +16,7 @@ build:
   just _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
   docker-compose build
+  touch .meta/var/.bash_history
 
 validate:
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"

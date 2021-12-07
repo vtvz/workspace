@@ -18,7 +18,7 @@ tools:
     gruntwork-io/terragrunt: 0.35.13
     terraform-linters/tflint: 0.33.1
     terraform-linters/tflint-ruleset-aws: 0.10.0
-    aquasecurity/tfsec: 0.61.3
+    aquasecurity/tfsec: 0.62.0
     terraform-docs/terraform-docs: 0.16.0
     accurics/terrascan: 1.12.0
 

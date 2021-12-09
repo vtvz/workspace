@@ -1,4 +1,3 @@
-{{ $usesGolang := hasPrefix .config.image "golang" -}}
 {{ $golang := index .config.tools "golang/go" -}}
 
 {{ $github := .config.tools.github -}}
@@ -17,6 +16,7 @@
 {{ $starship := index $github "starship/starship" -}}
 {{ $sops := index $github "mozilla/sops" -}}
 {{ $drone := index $github "harness/drone-cli" -}}
+{{ $gitleaks := index $github "zricethezav/gitleaks" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
@@ -46,7 +46,7 @@ RUN curl -fL https://github.com/terraform-linters/tflint/releases/download/v{{ $
     && unzip /tmp/tflint.zip -d /tmp/ && rm /tmp/tflint.zip
 
 FROM core as tflint_aws
-RUN curl -fL https://github.com/terraform-linters/tflint-ruleset-aws/releases/download/v{{ $tflint_aws }}/tflint-ruleset-aws_linux_amd64.zip  -o /tmp/tflint-ruleset-aws.zip \
+RUN curl -fL https://github.com/terraform-linters/tflint-ruleset-aws/releases/download/v{{ $tflint_aws }}/tflint-ruleset-aws_linux_amd64.zip -o /tmp/tflint-ruleset-aws.zip \
     && unzip /tmp/tflint-ruleset-aws.zip -d /tmp/ && rm /tmp/tflint-ruleset-aws.zip
 
 FROM core as tfsec
@@ -54,14 +54,14 @@ RUN curl -fL https://github.com/aquasecurity/tfsec/releases/download/v{{ $tfsec 
     && chmod +x /tmp/tfsec
 
 FROM core as terraform_docs
-# hadolint ignore=DL3003
-RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64.tar.gz -o /tmp/terraform-docs.tar.gz \
-    && cd /tmp && tar -xf /tmp/terraform-docs.tar.gz terraform-docs && rm /tmp/terraform-docs.tar.gz
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64.tar.gz | tar zx \
+    && mv terraform-docs /tmp
 
 FROM core as terrascan
-# hadolint ignore=DL3003
-RUN curl -fL https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz -o /tmp/terrascan.tar.gz \
-    && cd /tmp && tar -xf /tmp/terrascan.tar.gz terrascan && rm /tmp/terrascan.tar.gz
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz | tar zx \
+    && mv terrascan /tmp
 
 FROM core as just
 # hadolint ignore=DL4006
@@ -86,27 +86,30 @@ RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kube
 FROM core as kubectx
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubectx_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
-    && cp kubectx /tmp && chmod +x /tmp/kubectx
+    && cp kubectx /tmp
 
 FROM core as kubens
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
-    && cp kubens /tmp && chmod +x /tmp/kubens
+    && cp kubens /tmp
 
 FROM core as drone
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
-    && cp drone /tmp && chmod +x /tmp/drone
+    && cp drone /tmp
 
 FROM core as sops
 RUN curl -fL https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
     && chmod +x /tmp/sops
 
-{{ if $usesGolang }}
+FROM core as gitleaks
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/zricethezav/gitleaks/releases/download/v{{ $gitleaks }}/gitleaks_{{ $gitleaks }}_linux_x64.tar.gz | tar zx \
+    && mv gitleaks /tmp
+
 FROM core as golangci_lint
 # hadolint ignore=DL4006
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
-{{- end }}
 
 FROM core
 
@@ -150,6 +153,7 @@ COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
+COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \
@@ -171,7 +175,8 @@ RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens \
     && just --completions bash > /etc/bash_completion.d/just \
-    && echo 'complete -C /usr/local/bin/terraform terraform' > /etc/bash_completion.d/terraform \
+    && gitleaks completion bash > /etc/bash_completion.d/gitleaks \
+    && echo 'complete -C /usr/local/bin/terraform terraform tf' > /etc/bash_completion.d/terraform \
     && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
 
 ARG home="/home/user"
@@ -179,9 +184,7 @@ RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user
 
 USER 1000
 
-{{- if $usesGolang }}
 ENV CGO_ENABLED=0
-{{- end }}
 ARG workdir="/workspace"
 
 RUN mv "$home/.bashrc" "$home/.bashrc_original" \
@@ -191,6 +194,6 @@ ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"
 ENV STARSHIP_CONFIG="$workdir/.meta/starship/config.toml"
 
-# RUN apk add perl
+WORKDIR $workdir
 
 ENTRYPOINT []

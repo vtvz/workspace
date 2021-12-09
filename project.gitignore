@@ -1,8 +1,9 @@
-.env
-.meta
 .directory
-config.yaml
+.env
+.gitleaks.toml
+.meta
 config.local.yaml
+config.yaml
 docker-compose.yml
-Makefile
 Justfile
+Makefile

@@ -17,17 +17,23 @@
 {{ $sops := index $github "mozilla/sops" -}}
 {{ $drone := index $github "harness/drone-cli" -}}
 {{ $gitleaks := index $github "zricethezav/gitleaks" -}}
+{{ $neovim := index $github "neovim/neovim" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
 {{ $awscli := index .config.tools "aws/aws-cli" -}}
 
-FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
+{{ define "apt-get install" }}
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-      bash curl git openssh-client jq graphviz nano bash-completion groff unzip \
+      {{ join . " " }} \
     && rm -rf /var/lib/apt/lists/*
+{{ end -}}
+
+FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
+
+{{ template "apt-get install" (slice "bash" "curl" "git" "openssh-client" "jq" "nano" "bash-completion" "unzip") }}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -113,11 +119,18 @@ RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $gol
 
 FROM core
 
-# hadolint ignore=DL3008
-RUN apt-get update \
-    && apt-get install --no-install-recommends -y \
-      python3 python3-pip less {{ join .config.extraPackages " " }} \
-    && rm -rf /var/lib/apt/lists/*
+{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff") }}
+
+{{ template "apt-get install" .config.extraPackages }}
+
+# hadolint ignore=DL3003
+RUN tmp="$(mktemp -d)" && cd "$tmp" \
+    && curl -Lf "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim.appimage" -O \
+    && chmod u+x ./nvim.appimage \
+    && ./nvim.appimage --appimage-extract \
+    && ls "$tmp/squashfs-root" > /tmp/ls \
+    && cp -ra "$tmp/squashfs-root/usr" / \
+    && rm -rf "$tmp"
 
 # hadolint ignore=DL3003,DL4006
 RUN tmp="$(mktemp -d)" \

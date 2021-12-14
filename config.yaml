@@ -6,7 +6,7 @@ image: golang:{{ .version }}
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
-  golang/go: 1.17.4
+  golang/go: 1.17.5
   kubernetes/kubectl: 1.23.0
   1password: 1.12.3
   aws/aws-cli: 2.4.6

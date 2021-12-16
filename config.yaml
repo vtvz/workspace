@@ -14,7 +14,7 @@ tools:
   github:
     golangci/golangci-lint: 1.43.0
 
-    hashicorp/terraform: 1.1.0
+    hashicorp/terraform: 1.1.1
     gruntwork-io/terragrunt: 0.35.14
     terraform-linters/tflint: 0.34.0
     terraform-linters/tflint-ruleset-aws: 0.10.1
@@ -23,6 +23,7 @@ tools:
     terraform-docs/terraform-docs: 0.16.0
 
     ahmetb/kubectx: 0.9.4
+    argoproj/argo-cd: 2.2.0
 
     hadolint/hadolint: 2.8.0
     zricethezav/gitleaks: 8.2.1

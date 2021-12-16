@@ -11,6 +11,7 @@
 {{ $terrascan := index $github "accurics/terrascan" -}}
 {{ $hadolint := index $github "hadolint/hadolint" -}}
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
+{{ $argocd := index $github "argoproj/argo-cd" -}}
 {{ $just := index $github "casey/just" -}}
 {{ $direnv := index $github "direnv/direnv" -}}
 {{ $starship := index $github "starship/starship" -}}
@@ -99,6 +100,10 @@ FROM core as kubens
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp
 
+FROM core as argocd
+RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
+    && chmod +x /tmp/argocd
+
 FROM core as drone
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
@@ -165,6 +170,7 @@ COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
+COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 

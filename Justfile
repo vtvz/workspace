@@ -51,3 +51,11 @@ install:
   ln -fs {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   ln -fs {{ file_name(justfile_directory()) }}/Justfile ../Justfile
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
+
+update:
+  #!/bin/bash -eu
+  cd $(dirname $(readlink -f {{ quote(justfile()) }}))
+  set -x
+  git pull origin master
+  just install
+  just ../build

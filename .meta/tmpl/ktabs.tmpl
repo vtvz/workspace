@@ -1,0 +1,3 @@
+{{ range $profile := .config.awsVaultProfiles -}}
+title: {{ $profile }};; command: just profile {{ $profile }} just {{ $.config.shell }} ;; profile: {{ $profile }}
+{{ end -}}

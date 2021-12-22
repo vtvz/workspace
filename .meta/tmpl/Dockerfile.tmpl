@@ -10,6 +10,7 @@
 {{ $terraform_docs := index $github "terraform-docs/terraform-docs" -}}
 {{ $terrascan := index $github "accurics/terrascan" -}}
 {{ $hadolint := index $github "hadolint/hadolint" -}}
+{{ $helm := index $github "helm/helm" -}}
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
 {{ $argocd := index $github "argoproj/argo-cd" -}}
 {{ $just := index $github "casey/just" -}}
@@ -19,6 +20,7 @@
 {{ $drone := index $github "harness/drone-cli" -}}
 {{ $gitleaks := index $github "zricethezav/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
+{{ $fzf := index $github "junegunn/fzf" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
@@ -78,6 +80,11 @@ FROM core as direnv
 RUN curl -fL https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/direnv.linux-amd64 -o /tmp/direnv \
     && chmod +x /tmp/direnv
 
+FROM core as fzf
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/junegunn/fzf/releases/download/{{ $fzf }}/fzf-{{ $fzf }}-linux_amd64.tar.gz | tar zx \
+    && mv fzf /tmp
+
 FROM core as hadolint
 RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
     && chmod +x /tmp/hadolint
@@ -89,6 +96,10 @@ RUN curl -fL https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd6
 FROM core as kubectl
 RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
+
+FROM core as helm
+RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
+    && mv linux-amd64/helm /tmp/helm
 
 FROM core as kubectx
 # hadolint ignore=DL4006
@@ -166,6 +177,7 @@ COPY --from=just /tmp/just /usr/local/bin/just
 COPY --from=direnv /tmp/direnv /usr/local/bin/direnv
 COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
+COPY --from=helm /tmp/helm /usr/local/bin/helm
 COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
@@ -173,6 +185,7 @@ COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
+COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \
@@ -195,8 +208,21 @@ RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens \
     && just --completions bash > /etc/bash_completion.d/just \
     && gitleaks completion bash > /etc/bash_completion.d/gitleaks \
+    && helm completion bash > /etc/bash_completion.d/helm \
     && echo 'complete -C /usr/local/bin/terraform terraform tf' > /etc/bash_completion.d/terraform \
     && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
+
+RUN completion="/usr/share/zsh/functions/Completion" \
+    && kubectl completion zsh > "$completion/_kubectl.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.zsh" -o "$completion/_kubens.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.zsh" -o "$completion/_kubens.zsh" \
+    && just --completions zsh > "$completion/_just.zsh" \
+    && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
+    && helm completion zsh > "$completion/_helm.zsh"
+
+RUN mkdir -p /usr/share/fzf/ \
+  && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
+  && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
 
 ARG home="/home/user"
 RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user
@@ -206,8 +232,24 @@ USER 1000
 ENV CGO_ENABLED=0
 ARG workdir="/workspace"
 
+{{ $zsh_autosuggestions := index .config.tools "zsh-users/zsh-autosuggestions" -}}
+{{ $zsh_syntax_highlighting := index .config.tools "zsh-users/zsh-syntax-highlighting" -}}
+{{ $zsh_completions := index .config.tools "zsh-users/zsh-completions" -}}
+{{ $zsh_vim_mode := index .config.tools "softmoth/zsh-vim-mode" -}}
+{{ $zsh_notify := index .config.tools "marzocchi/zsh-notify" -}}
+
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" --keep-zshrc \
+    && plugins="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/plugins" \
+    && git clone https://github.com/zsh-users/zsh-autosuggestions.git --depth 1 --branch v{{ $zsh_autosuggestions }} "$plugins/zsh-autosuggestions" \
+    && git clone https://github.com/zsh-users/zsh-syntax-highlighting.git --depth 1 --branch {{ $zsh_syntax_highlighting }} "$plugins/zsh-syntax-highlighting" \
+    && git clone https://github.com/zsh-users/zsh-completions.git --depth 1 --branch {{ $zsh_completions }} "$plugins/zsh-completions" \
+    && git clone https://github.com/softmoth/zsh-vim-mode.git "$plugins/zsh-vim-mode" && git -C "$plugins/zsh-vim-mode" reset --hard {{ $zsh_vim_mode }} \
+    && find "$plugins" -name .git -type d -prune -exec rm -rf {} \;
+
 RUN mv "$home/.bashrc" "$home/.bashrc_original" \
-    && ln -s "$workdir/.meta/tmpl/.bashrc" "$home/.bashrc"
+    && ln -s "$workdir/.meta/tmpl/.bashrc" "$home/.bashrc" \
+    && mv "$home/.zshrc" "$home/.zshrc_original" \
+    && ln -s "$workdir/.meta/zsh/.zshrc" "$home/.zshrc"
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"

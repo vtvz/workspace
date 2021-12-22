@@ -23,15 +23,30 @@ validate:
   cat .meta/var/Dockerfile | docker-compose run --rm {{ container }} hadolint -
   docker-compose run --rm {{ container }} pre-commit run
 
+k profile="":
+  @shell="{{ `just _gomplate "-i '{{ .config.shell }}' --exec-pipe -- tr -d '\r'"` }}" \
+    && konsole -p Icon=blender -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e just profile {{ quote(profile) }} just "$shell" &
+
+ks:
+  just _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
+  konsole --tabs-from-file .meta/var/ktabs -e true &
+
 # Run bash terminal inside container
-sh:
-  docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm {{ container }} bash
+bash:
+  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm {{ container }} bash
+
+# Run zsh terminal inside container
+zsh:
+  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm {{ container }} zsh
 
 # Switch to AWS profile using aws-vault
-profile profile="":
-  cd {{ invocation_directory() }} \
-    && aws-vault exec --duration=8h \
-    {{ if profile != "" { profile } else { `just _gomplate "-i '{{ .config.awsVaultProfile }}' --exec-pipe -- tr -d '\r'"` } }}
+profile profile="" +cmd="$SHELL":
+  #!/bin/bash -eu
+  exec {lock_fd}>/tmp/{{ file_name(invocation_directory()) }}.lock
+  flock -x "$lock_fd"
+  cd {{ invocation_directory() }}
+  aws-vault exec --duration=8h \
+    {{ if profile != "" { profile } else { `just _gomplate "-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'"` } }} -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
 _gomplate args:
   @docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \

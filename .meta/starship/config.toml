@@ -1,6 +1,11 @@
 add_newline = true
 format = "[ vtvz's workspace ](bg:#1380EC fg:#1e1e1e bold) $all$directory$character"
 
+[character]                            # The name of the module we are configuring is "character"
+success_symbol = "[>](bold green)"
+error_symbol = "[>](bold red)"
+vicmd_symbol = "[<](bold green)"
+
 [terraform]
 symbol = "tf "
 
@@ -20,3 +25,5 @@ style = "dimmed"
 
 [status]
 disabled = false
+symbol = "x"
+success_symbol = "v"

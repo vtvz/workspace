@@ -25,7 +25,7 @@ validate:
 
 k profile="":
   @shell="{{ `just _gomplate "-i '{{ .config.shell }}' --exec-pipe -- tr -d '\r'"` }}" \
-    && konsole -p Icon=blender -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e just profile {{ quote(profile) }} just "$shell" &
+    && konsole -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e just profile {{ quote(profile) }} just "$shell" &
 
 ks:
   just _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"

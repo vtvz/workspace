@@ -25,5 +25,5 @@ services:
       AWS_SESSION_EXPIRATION: ${AWS_SESSION_EXPIRATION:-}
       AWS_SECURITY_TOKEN: ${AWS_SECURITY_TOKEN:-}
       IN_DOCKER: "true"
-    restart: "Never"
+    restart: "no"
     user: "1000"

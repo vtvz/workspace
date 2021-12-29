@@ -11,6 +11,9 @@ init:
   docker -v
   docker-compose -v
 
+git-cleanup:
+  git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+
 # Build/rebuild templates and docker image
 build:
   just _gomplate "-f .meta/tmpl/.env.tmpl -o .env"

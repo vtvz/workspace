@@ -38,3 +38,5 @@ function zsh-notify-after-command() {
 
 autoload -U add-zsh-hook
 add-zsh-hook precmd zsh-notify-after-command
+
+alias opin='eval $(echo $OP_PASSWORD | op signin $OP_ADDRESS $OP_EMAIL $OP_SECRET_KEY)'

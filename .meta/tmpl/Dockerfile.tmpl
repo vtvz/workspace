@@ -225,7 +225,8 @@ RUN mkdir -p /usr/share/fzf/ \
   && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
 
 ARG home="/home/user"
-RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user
+RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user \
+    && mkdir "$home/.config"
 
 USER 1000
 
@@ -250,6 +251,11 @@ RUN mv "$home/.bashrc" "$home/.bashrc_original" \
     && ln -s "$workdir/.meta/tmpl/.bashrc" "$home/.bashrc" \
     && mv "$home/.zshrc" "$home/.zshrc_original" \
     && ln -s "$workdir/.meta/zsh/.zshrc" "$home/.zshrc"
+
+{{ $vim_plug := index .config.tools "junegunn/vim-plug" -}}
+
+RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+       "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"

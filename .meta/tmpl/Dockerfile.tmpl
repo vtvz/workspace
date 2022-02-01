@@ -232,7 +232,7 @@ RUN mkdir -p /usr/share/fzf/ \
   && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
 
 ARG home="/home/user"
-RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password user \
+RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password {{ .config.username }} \
     && mkdir "$home/.config"
 
 USER 1000

@@ -2,6 +2,7 @@
 awsVaultProfiles: [ default ]
 
 shell: zsh
+username: vtvz
 
 # Use "alpine" if you don't need tests
 image: golang:{{ .version }}

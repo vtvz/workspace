@@ -1,5 +1,5 @@
 add_newline = true
-format = "[ vtvz's workspace ](bg:#1380EC fg:#1e1e1e bold) $all$directory$character"
+format = "$custom$all$directory$character"
 
 [character]                            # The name of the module we are configuring is "character"
 success_symbol = "[>](bold green)"
@@ -27,3 +27,8 @@ style = "dimmed"
 disabled = false
 symbol = "x"
 success_symbol = "v"
+
+[custom.me]
+command = "whoami"
+when = "true"
+format = "[ $output's workspace ](bg:#1380EC fg:#1e1e1e bold) "

@@ -21,6 +21,7 @@
 {{ $gitleaks := index $github "zricethezav/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
 {{ $fzf := index $github "junegunn/fzf" -}}
+{{ $crossplane := index $github "crossplane/crossplane" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
@@ -133,6 +134,11 @@ FROM core as golangci_lint
 # hadolint ignore=DL4006
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
 
+FROM core as crossplane
+# hadolint ignore=DL4006
+RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
+    && chmod +x /tmp/kubectl-crossplane
+
 FROM core
 
 {{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff") }}
@@ -182,6 +188,7 @@ COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
+COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
 COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks

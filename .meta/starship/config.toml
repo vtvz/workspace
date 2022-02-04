@@ -32,3 +32,15 @@ success_symbol = "v"
 command = "whoami"
 when = "true"
 format = "[ $output's workspace ](bg:#1380EC fg:#1e1e1e bold) "
+
+[git_branch]
+disabled = true
+
+[git_commit]
+disabled = true
+
+[git_state]
+disabled = true
+
+[git_status]
+disabled = true

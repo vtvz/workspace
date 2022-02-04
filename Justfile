@@ -23,7 +23,7 @@ build:
 
 validate:
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
-  cat .meta/var/Dockerfile | docker-compose run --rm {{ container }} hadolint -
+  # cat .meta/var/Dockerfile | docker-compose run --rm {{ container }} hadolint -
   docker-compose run --rm {{ container }} pre-commit run
 
 k profile="":

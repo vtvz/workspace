@@ -36,6 +36,9 @@ tools:
     ahmetb/kubectx: 0.9.4
     argoproj/argo-cd: 2.2.4
     crossplane/crossplane: 1.6.2
+    ahmetb/kubectl-tree: 0.4.1
+    tohjustin/kube-lineage: 0.4.2
+    itaysk/kubectl-neat: 2.0.3
 
     hadolint/hadolint: 2.8.0
     zricethezav/gitleaks: 8.2.7

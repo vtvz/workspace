@@ -23,6 +23,10 @@
 {{ $fzf := index $github "junegunn/fzf" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 
+{{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
+{{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
+{{ $kubectl_neat := index $github "itaysk/kubectl-neat" -}}
+
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
 {{ $awscli := index .config.tools "aws/aws-cli" -}}
@@ -139,6 +143,21 @@ FROM core as crossplane
 RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
     && chmod +x /tmp/kubectl-crossplane
 
+FROM core as kubectl_tree
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/ahmetb/kubectl-tree/releases/download/v{{ $kubectl_tree }}/kubectl-tree_v{{ $kubectl_tree }}_linux_amd64.tar.gz" | tar zx \
+    && mv kubectl-tree /tmp
+
+FROM core as kube_lineage
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/tohjustin/kube-lineage/releases/download/v{{ $kube_lineage }}/kube-lineage_linux_amd64.tar.gz" | tar zx \
+    && mv kube-lineage /tmp
+
+FROM core as kubectl_neat
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/itaysk/kubectl-neat/releases/download/v{{ $kubectl_neat }}/kubectl-neat_linux_amd64.tar.gz" | tar zx \
+    && mv kubectl-neat /tmp
+
 FROM core
 
 {{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff") }}
@@ -188,6 +207,9 @@ COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
+COPY --from=kubectl_tree /tmp/kubectl-tree /usr/local/bin/kubectl-tree
+COPY --from=kube_lineage /tmp/kube-lineage /usr/local/bin/kubectl-lineage
+COPY --from=kubectl_neat /tmp/kubectl-neat /usr/local/bin/kubectl-neat
 COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
 COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint

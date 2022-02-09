@@ -44,3 +44,6 @@ disabled = true
 
 [git_status]
 disabled = true
+
+[container]
+disabled = true

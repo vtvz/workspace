@@ -11,6 +11,7 @@
 {{ $terrascan := index $github "accurics/terrascan" -}}
 {{ $hadolint := index $github "hadolint/hadolint" -}}
 {{ $helm := index $github "helm/helm" -}}
+{{ $helmfile := index $github "roboll/helmfile" -}}
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
 {{ $argocd := index $github "argoproj/argo-cd" -}}
 {{ $just := index $github "casey/just" -}}
@@ -105,6 +106,10 @@ RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kube
 FROM core as helm
 RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
     && mv linux-amd64/helm /tmp/helm
+
+FROM core as helmfile
+RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
+  && chmod +x /tmp/helmfile
 
 FROM core as kubectx
 # hadolint ignore=DL4006
@@ -203,6 +208,7 @@ COPY --from=direnv /tmp/direnv /usr/local/bin/direnv
 COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=helm /tmp/helm /usr/local/bin/helm
+COPY --from=helmfile /tmp/helmfile /usr/local/bin/helmfile
 COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx

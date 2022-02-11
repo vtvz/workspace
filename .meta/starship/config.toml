@@ -1,5 +1,5 @@
 add_newline = true
-format = "$custom$all$directory$character"
+format = "$custom$all$directory$status$character"
 
 [character]                            # The name of the module we are configuring is "character"
 success_symbol = "[>](bold green)"
@@ -47,3 +47,7 @@ disabled = true
 
 [container]
 disabled = true
+
+[time]
+disabled = false
+format = "[$time]($style) "

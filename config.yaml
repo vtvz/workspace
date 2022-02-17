@@ -22,13 +22,13 @@ tools:
   junegunn/vim-plug: e300178
 
   github:
-    golangci/golangci-lint: 1.44.0
+    golangci/golangci-lint: 1.44.1
 
     hashicorp/terraform: 1.1.6
     gruntwork-io/terragrunt: 0.36.1
     terraform-linters/tflint: 0.34.1
     terraform-linters/tflint-ruleset-aws: 0.12.0
-    aquasecurity/tfsec: 1.1.5
+    aquasecurity/tfsec: 1.2.1
     accurics/terrascan: 1.13.1
     terraform-docs/terraform-docs: 0.16.0
 

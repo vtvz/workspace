@@ -11,6 +11,7 @@ services:
       - ~/.ssh:/home/user/.ssh
       - .meta/var/op:/home/user/.config/op
       - .meta/nvim:/home/user/.config/nvim
+      - .meta/zellij:/home/user/.config/zellij
       - .meta/var/kube:/home/user/.kube
       - .meta/var/.bash_history:/home/user/.bash_history
       - .meta/var/zsh:/home/user/.zsh_tmp

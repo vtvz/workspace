@@ -12,6 +12,7 @@
 {{ $hadolint := index $github "hadolint/hadolint" -}}
 {{ $helm := index $github "helm/helm" -}}
 {{ $helmfile := index $github "roboll/helmfile" -}}
+{{ $helm_diff := index $github "databus23/helm-diff" -}}
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
 {{ $argocd := index $github "argoproj/argo-cd" -}}
 {{ $just := index $github "casey/just" -}}
@@ -22,6 +23,7 @@
 {{ $gitleaks := index $github "zricethezav/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
 {{ $fzf := index $github "junegunn/fzf" -}}
+{{ $zellij := index $github "zellij-org/zellij" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
@@ -92,6 +94,11 @@ FROM core as fzf
 RUN curl -fL https://github.com/junegunn/fzf/releases/download/{{ $fzf }}/fzf-{{ $fzf }}-linux_amd64.tar.gz | tar zx \
     && mv fzf /tmp
 
+FROM core as zellij
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/zellij-org/zellij/releases/download/v{{ $zellij }}/zellij-x86_64-unknown-linux-musl.tar.gz" | tar zx \
+    && mv zellij /tmp
+
 FROM core as hadolint
 RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
     && chmod +x /tmp/hadolint
@@ -111,6 +118,11 @@ RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
 FROM core as helmfile
 RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
   && chmod +x /tmp/helmfile
+
+FROM core as helm_diff
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/databus23/helm-diff/releases/download/v{{ $helm_diff }}/helm-diff-linux-amd64.tgz" | tar zx \
+    && cp diff/bin/diff /tmp/helm-diff
 
 FROM core as kubectx
 # hadolint ignore=DL4006
@@ -215,6 +227,7 @@ COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=helm /tmp/helm /usr/local/bin/helm
 COPY --from=helmfile /tmp/helmfile /usr/local/bin/helmfile
+COPY --from=helm_diff /tmp/helm-diff /usr/local/bin/helm-diff
 COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
@@ -228,6 +241,7 @@ COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
+COPY --from=zellij /tmp/zellij /usr/local/bin/zellij
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \

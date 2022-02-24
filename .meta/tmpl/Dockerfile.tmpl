@@ -119,11 +119,6 @@ FROM core as helmfile
 RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
   && chmod +x /tmp/helmfile
 
-FROM core as helm_diff
-# hadolint ignore=DL4006
-RUN curl -fL "https://github.com/databus23/helm-diff/releases/download/v{{ $helm_diff }}/helm-diff-linux-amd64.tgz" | tar zx \
-    && cp diff/bin/diff /tmp/helm-diff
-
 FROM core as kubectx
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubectx_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
@@ -227,7 +222,6 @@ COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=helm /tmp/helm /usr/local/bin/helm
 COPY --from=helmfile /tmp/helmfile /usr/local/bin/helmfile
-COPY --from=helm_diff /tmp/helm-diff /usr/local/bin/helm-diff
 COPY --from=sops /tmp/sops /usr/local/bin/sops
 COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
@@ -312,6 +306,8 @@ RUN mv "$home/.bashrc" "$home/.bashrc_original" \
 
 RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
+
+RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"

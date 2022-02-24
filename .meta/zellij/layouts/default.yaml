@@ -22,7 +22,5 @@ tabs:
   - name: "Main"
     focus: true
     direction: Vertical
-    parts:
-      - direction: Horizontal
-        focus: true
-      - direction: Horizontal
+
+  - name: "Reserve"

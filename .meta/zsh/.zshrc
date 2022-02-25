@@ -11,6 +11,7 @@ source ~/.zshrc_original
 bindkey '^H' backward-kill-word
 
 setopt histignorealldups sharehistory
+setopt histignorespace
 
 # Keep 1000 lines of history within the shell and save it to ~/.zsh_history:
 HISTSIZE=1000

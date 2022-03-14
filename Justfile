@@ -36,11 +36,11 @@ ks:
 
 # Run bash terminal inside container
 bash:
-  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=bash {{ container }} zellij --session="$AWS_VAULT"
+  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=bash {{ container }} zellij --session="${AWS_VAULT:-bash}"
 
 # Run zsh terminal inside container
 zsh:
-  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zellij --session="$AWS_VAULT"
+  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zellij --session="${AWS_VAULT:-zsh}"
 
 # Switch to AWS profile using aws-vault
 profile profile="" +cmd="$SHELL":

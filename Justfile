@@ -18,6 +18,10 @@ git-cleanup:
 build:
   just _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
   just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
+  cat .meta/var/Dockerfile \
+    | grep -P "FROM .* as .*" \
+    | sed 's/FROM .* as //' \
+    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .meta/var/Dockerfile --target {} .
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose build
   touch .meta/var/.bash_history
 
@@ -36,11 +40,14 @@ ks:
 
 # Run bash terminal inside container
 bash:
-  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=bash {{ container }} zellij --session="${AWS_VAULT:-bash}"
+  just _shell bash
 
 # Run zsh terminal inside container
 zsh:
-  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zellij --session="${AWS_VAULT:-zsh}"
+  just _shell zsh
+
+_shell shell:
+  @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL={{ shell }} {{ container }} zellij --session="${AWS_VAULT:-{{ shell }}}"
 
 # Switch to AWS profile using aws-vault
 profile profile="" +cmd="$SHELL":

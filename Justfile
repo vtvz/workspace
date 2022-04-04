@@ -1,6 +1,7 @@
 set dotenv-load := false
 container := "workspace"
 workdir := "/workspace"
+just := quote(just_executable())
 
 # Show this help
 help:
@@ -16,8 +17,8 @@ git-cleanup:
 
 # Build/rebuild templates and docker image
 build:
-  just _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
-  just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
+  {{ just }} _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
+  {{ just }} _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
   cat .meta/var/Dockerfile \
     | grep -P "FROM .* as .*" \
     | sed 's/FROM .* as //' \
@@ -26,25 +27,25 @@ build:
   touch .meta/var/.bash_history
 
 validate:
-  just _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
+  {{ just }} _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
   # cat .meta/var/Dockerfile | docker-compose run --rm {{ container }} hadolint -
   docker-compose run --rm {{ container }} pre-commit run
 
 k profile="":
   @shell="{{ `just _gomplate "-i '{{ .config.shell }}' --exec-pipe -- tr -d '\r'"` }}" \
-    && konsole -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e just profile {{ quote(profile) }} just "$shell" &
+    && konsole -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e {{ just }} profile {{ quote(profile) }} {{ just }} "$shell" &
 
 ks:
-  just _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
+  {{ just }} _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
   konsole --tabs-from-file .meta/var/ktabs -e true &
 
 # Run bash terminal inside container
 bash:
-  just _shell bash
+  {{ just }} _shell bash
 
 # Run zsh terminal inside container
 zsh:
-  just _shell zsh
+  {{ just }} _shell zsh
 
 _shell shell:
   @docker-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL={{ shell }} {{ container }} zellij --session="${AWS_VAULT:-{{ shell }}}"
@@ -83,5 +84,8 @@ update:
   cd $(dirname $(readlink -f {{ quote(justfile()) }}))
   set -x
   git pull origin master
-  just install
-  just ../build
+  {{ just }} install
+  {{ just }} ../build
+
+ws +args:
+  {{ just }} -f {{ quote(invocation_directory() + "/.ws.justfile") }} {{ args }}

@@ -206,6 +206,10 @@ RUN pip3 install --no-cache-dir \
         {{ $p }}=={{ $v }} \
     {{ end }};
 
+
+RUN mkdir -p /etc/tflint.d/plugins
+ENV TFLINT_PLUGIN_DIR /etc/tflint.d/plugins
+
 # hadolint ignore=DL4006
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
 

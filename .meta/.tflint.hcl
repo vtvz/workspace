@@ -30,11 +30,11 @@ rule "terraform_deprecated_interpolation" {
 }
 
 rule "terraform_unused_declarations" {
-  enabled = false
+  enabled = true
 }
 
 rule "terraform_typed_variables" {
-  enabled = false
+  enabled = true
 }
 
 rule "terraform_module_pinned_source" {

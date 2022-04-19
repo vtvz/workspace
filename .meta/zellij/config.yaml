@@ -448,9 +448,23 @@ plugins:
 #   - false
 pane_frames: false
 
+themes:
+  darkula:
+    bg: [43, 43, 43]
+    red: [236, 63, 63]
+    green: [92, 150, 44]
+    yellow: [241, 250, 140]
+    blue: [98, 114, 164]
+    magenta: [189, 147, 249]
+    orange: [216, 133, 76]
+    fg: [187, 187, 187]
+    cyan: [0, 163, 163]
+    black: [35, 35, 35]
+    white: [255, 255, 255]
+
 # Choose the theme that is specified in the themes section.
 # Default: default
-#theme: default
+theme: darkula
 
 # Choose the mode that zellij uses when starting up.
 # Default: normal

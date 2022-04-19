@@ -27,6 +27,8 @@ style = "dimmed"
 disabled = false
 symbol = "x"
 success_symbol = "v"
+pipestatus = true
+style = "white"
 
 [custom.me]
 command = "whoami"

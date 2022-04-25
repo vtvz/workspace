@@ -28,5 +28,6 @@ services:
       AWS_SESSION_EXPIRATION: ${AWS_SESSION_EXPIRATION:-}
       AWS_SECURITY_TOKEN: ${AWS_SECURITY_TOKEN:-}
       IN_DOCKER: "true"
+      TERM: xterm-256color
     restart: "no"
     user: "1000"

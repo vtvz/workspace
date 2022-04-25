@@ -14,7 +14,7 @@ rule "terraform_required_version" {
 }
 
 rule "terraform_standard_module_structure" {
-  enabled = false
+  enabled = true
 }
 
 rule "terraform_deprecated_index" {
@@ -42,7 +42,7 @@ rule "terraform_module_pinned_source" {
 }
 
 rule "terraform_unused_required_providers" {
-  enabled = false
+  enabled = true
 }
 
 rule "terraform_workspace_remote" {
@@ -60,5 +60,5 @@ rule "terraform_documented_variables" {
 
 plugin "aws" {
   enabled    = true
-  deep_check = false
+  deep_check = true
 }

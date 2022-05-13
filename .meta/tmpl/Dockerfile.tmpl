@@ -8,7 +8,7 @@
 {{ $tflint_aws := index $github "terraform-linters/tflint-ruleset-aws" -}}
 {{ $tfsec := index $github "aquasecurity/tfsec" -}}
 {{ $terraform_docs := index $github "terraform-docs/terraform-docs" -}}
-{{ $terrascan := index $github "accurics/terrascan" -}}
+{{ $terrascan := index $github "tenable/terrascan" -}}
 {{ $hadolint := index $github "hadolint/hadolint" -}}
 {{ $helm := index $github "helm/helm" -}}
 {{ $helmfile := index $github "roboll/helmfile" -}}
@@ -78,7 +78,7 @@ RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/
 
 FROM core as terrascan
 # hadolint ignore=DL4006
-RUN curl -fL https://github.com/accurics/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz | tar zx \
+RUN curl -fL https://github.com/tenable/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz | tar zx \
     && mv terrascan /tmp
 
 FROM core as just

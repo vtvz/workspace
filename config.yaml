@@ -12,7 +12,7 @@ tools:
   golang/go: 1.18.2
   kubernetes/kubectl: 1.24.0
   1password: 1.12.4
-  aws/aws-cli: 2.6.4
+  aws/aws-cli: 2.7.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.7.1
@@ -25,7 +25,7 @@ tools:
     golangci/golangci-lint: 1.46.1
 
     hashicorp/terraform: 1.1.9
-    gruntwork-io/terragrunt: 0.37.0
+    gruntwork-io/terragrunt: 0.37.1
     terraform-linters/tflint: 0.36.2
     terraform-linters/tflint-ruleset-aws: 0.13.4
     aquasecurity/tfsec: 1.21.0
@@ -34,7 +34,7 @@ tools:
 
     helm/helm: 3.8.2
     roboll/helmfile: 0.144.0
-    databus23/helm-diff: 3.4.2
+    databus23/helm-diff: 3.5.0
     ahmetb/kubectx: 0.9.4
     argoproj/argo-cd: 2.3.3
     crossplane/crossplane: 1.7.1

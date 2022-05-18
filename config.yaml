@@ -22,7 +22,7 @@ tools:
   junegunn/vim-plug: e300178
 
   github:
-    golangci/golangci-lint: 1.46.1
+    golangci/golangci-lint: 1.46.2
 
     hashicorp/terraform: 1.1.9
     gruntwork-io/terragrunt: 0.37.1

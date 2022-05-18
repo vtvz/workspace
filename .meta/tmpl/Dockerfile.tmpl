@@ -34,6 +34,7 @@
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
 {{ $awscli := index .config.tools "aws/aws-cli" -}}
+{{ $gcloud := index .config.tools "GoogleCloudPlatform/cloud-sdk-docker" -}}
 
 {{ define "apt-get install" }}
 # hadolint ignore=DL3008
@@ -176,6 +177,12 @@ FROM core as ketall
 RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ketall }}/ketall-amd64-linux.tar.gz" | tar zx \
     && mv ketall-amd64-linux /tmp/ketall
 
+FROM core as gcloud
+RUN tmp="$(mktemp -d)" \
+  && curl "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" -o "$tmp/gcloud.tar.gz" \
+  && cd /opt && tar xzf "$tmp/gcloud.tar.gz" \
+  && rm -rf "$tmp"
+
 FROM core
 
 {{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff") }}
@@ -200,6 +207,16 @@ RUN tmp="$(mktemp -d)" \
   && rm -rf "$tmp"
 
 ENV AWS_CLI_VERSION="{{ $awscli }}"
+
+COPY --from=gcloud /opt/google-cloud-sdk /opt/google-cloud-sdk
+
+ENV PATH="/opt/google-cloud-sdk/bin:${PATH}"
+RUN gcloud config set core/disable_usage_reporting true \
+  && gcloud config set component_manager/disable_update_check true \
+  && gcloud config set metrics/environment github_docker_image \
+  && gcloud --version
+
+ENV GCLOUD_CLI_VERSION="{{ $gcloud }}"
 
 RUN pip3 install --no-cache-dir \
     {{ range $p, $v := .config.tools.pip -}}
@@ -316,6 +333,7 @@ RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"
 ENV STARSHIP_CONFIG="$workdir/.meta/starship/config.toml"
+ENV CLOUDSDK_CONFIG="$workdir/.meta/var/gcloud"
 
 WORKDIR $workdir
 

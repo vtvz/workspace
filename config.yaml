@@ -13,6 +13,7 @@ tools:
   kubernetes/kubectl: 1.24.0
   1password: 1.12.4
   aws/aws-cli: 2.7.0
+  GoogleCloudPlatform/cloud-sdk-docker: 386.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.7.1
@@ -28,7 +29,7 @@ tools:
     gruntwork-io/terragrunt: 0.37.1
     terraform-linters/tflint: 0.36.2
     terraform-linters/tflint-ruleset-aws: 0.13.4
-    aquasecurity/tfsec: 1.21.0
+    aquasecurity/tfsec: 1.21.1
     tenable/terrascan: 1.15.0
     terraform-docs/terraform-docs: 0.16.0
 
@@ -61,7 +62,7 @@ tools:
     yamllint: 1.26.3
     ansible: 5.7.1
     hvac: 0.11.2
-    ansible-lint: 6.1.0
+    ansible-lint: 6.2.0
 
 dotenv:
   COMPOSE_PROJECT_NAME: TF-INFRA

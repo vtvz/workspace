@@ -75,6 +75,11 @@ current=$AWS_CLI_VERSION
 latest=$(curl -sf "https://api.github.com/repos/aws/aws-cli/tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
 check "aws/aws-cli" "$current" "$latest"
 
+#gcloud
+current=$GCLOUD_CLI_VERSION
+latest=$(curl -sf "https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags" | jq -r '[.[] | select( .name | test("^\\d")) | .name][0]')
+check "GoogleCloudPlatform/cloud-sdk-docker" "$current" "$latest"
+
 op update
 
 if [[ $applied -ne 0 ]]; then

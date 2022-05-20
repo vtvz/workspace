@@ -93,8 +93,8 @@ update:
   cd $(dirname $(readlink -f {{ quote(justfile()) }}))
   set -x
   git pull origin master
-  {{ this }} install
-  {{ this }} ../build
+  {{ just }} install
+  {{ just }} ../build
 
 ws +args:
   {{ just }} -f {{ quote(invocation_directory() + "/.ws.justfile") }} {{ args }}

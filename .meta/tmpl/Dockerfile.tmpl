@@ -113,6 +113,7 @@ RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kube
     && chmod +x /tmp/kubectl
 
 FROM core as helm
+# hadolint ignore=DL4006
 RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
     && mv linux-amd64/helm /tmp/helm
 
@@ -178,10 +179,8 @@ RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ket
     && mv ketall-amd64-linux /tmp/ketall
 
 FROM core as gcloud
-RUN tmp="$(mktemp -d)" \
-  && curl "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" -o "$tmp/gcloud.tar.gz" \
-  && cd /opt && tar xzf "$tmp/gcloud.tar.gz" \
-  && rm -rf "$tmp"
+
+RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
 
 FROM core
 

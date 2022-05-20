@@ -2,11 +2,7 @@
 .env
 .gitleaks.toml
 .meta
-config.local.yaml
-config.yaml
-docker-compose.yml
 Justfile
-Makefile
 .ws*
 .idea
 lib

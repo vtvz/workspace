@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -uo pipefail
+set -euo pipefail
 
 action=${1:-check}
 
@@ -21,14 +21,20 @@ function check {
       echo "${red}* Update for $repo available $latest (current $current)${reset}"
       available=$((available+1))
 
-      if [[ -f config.yaml && $action == "apply" ]]; then
-        sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" config.yaml
+      if [[ -f .ws.config.yaml && $action == "apply" ]]; then
+        sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws.config.yaml
         applied=$((applied+1))
       fi
     else
       echo "${green}- $repo up to date ($current)${reset}"
     fi
 
+}
+
+function github {
+  repo=$1
+  path=$2
+  curl --config $curl_cfg -sf "https://api.github.com/repos/${repo}/$2" "${@:3}"
 }
 
 curl_cfg=$(mktemp)
@@ -41,7 +47,7 @@ for component in $(echo "$GITHUB_VERSIONS" | jq -cM 'to_entries | .[]'); do
   repo=$(echo "$component" | jq -r '.key')
   current=$(echo "$component" | jq -r '.value')
 
-  latest=$(curl --config $curl_cfg -sf "https://api.github.com/repos/${repo}/releases/latest" | jq -r '.tag_name' | sed 's/^v*//g')
+  latest=$(github "${repo}" "releases/latest" | jq -r '.tag_name' | sed 's/^v*//g')
 
   if [[ "$latest" == "null" ]]; then
     echo "! Cannot get latest version for $repo"
@@ -72,12 +78,12 @@ fi
 
 #awscli
 current=$AWS_CLI_VERSION
-latest=$(curl -sf "https://api.github.com/repos/aws/aws-cli/tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
+latest=$(github "aws/aws-cli" "tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
 check "aws/aws-cli" "$current" "$latest"
 
 #gcloud
 current=$GCLOUD_CLI_VERSION
-latest=$(curl -sf "https://api.github.com/repos/GoogleCloudPlatform/cloud-sdk-docker/tags" | jq -r '[.[] | select( .name | test("^\\d")) | .name][0]')
+latest=$(github "GoogleCloudPlatform/cloud-sdk-docker" "tags" | jq -r '[.[] | select( .name | test("^\\d")) | .name][0]')
 check "GoogleCloudPlatform/cloud-sdk-docker" "$current" "$latest"
 
 op update

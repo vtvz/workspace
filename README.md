@@ -12,8 +12,9 @@ A handy tools for your daily DevOps routine.
 
 ```shell
 git clone https://github.com/vtvz/workspace.git .ws
+# git clone git@github.com:vtvz/workspace.git .ws
 just .ws/install
 just build
 just profile [your aws-vault profile name] #optional
-just sh
+just zsh
 ```

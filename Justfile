@@ -10,7 +10,7 @@ help:
   @just --list --unsorted
 
 init:
-  pre-commit install
+  pre-commit install --allow-missing-config
   docker -v
   docker-compose -v
 

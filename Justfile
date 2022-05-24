@@ -83,8 +83,8 @@ install:
   -rm {{ justfile_directory() }}/.meta/.meta
   ln -fs {{ file_name(justfile_directory()) }}/config.yaml ../.ws.config.yaml
   ln -fs {{ file_name(justfile_directory()) }}/docker-compose.yml ../.ws.docker-compose.yml
-  ln -fs {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
-  ln -fs {{ file_name(justfile_directory()) }}/Justfile ../Justfile
+  -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
+  -ln -s {{ file_name(justfile_directory()) }}/Justfile ../Justfile
   -ln -fs ../{{ file_name(justfile_directory()) }}/.meta/idea/watcherTasks.xml ../.idea/watcherTasks.xml
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
 

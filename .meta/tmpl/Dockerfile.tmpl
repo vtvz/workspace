@@ -25,6 +25,8 @@
 {{ $fzf := index $github "junegunn/fzf" -}}
 {{ $zellij := index $github "zellij-org/zellij" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
+{{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
+{{ $age := index $github "FiloSottile/age" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -178,6 +180,16 @@ FROM core as ketall
 RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ketall }}/ketall-amd64-linux.tar.gz" | tar zx \
     && mv ketall-amd64-linux /tmp/ketall
 
+FROM core as terraform_backend_git
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64"  -o /tmp/terraform-backend-git \
+    && chmod +x /tmp/terraform-backend-git
+
+FROM core as age
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v1.0.0/age-v1.0.0-linux-amd64.tar.gz" | tar zx \
+    && mv age/age age/age-keygen /tmp
+
 FROM core as gcloud
 
 RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
@@ -256,6 +268,9 @@ COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
 COPY --from=zellij /tmp/zellij /usr/local/bin/zellij
+COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
+COPY --from=age /tmp/age /usr/local/bin/age
+COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \

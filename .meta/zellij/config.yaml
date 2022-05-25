@@ -44,8 +44,6 @@ keybinds:
           key: [ Alt: '+']
         - action: [Resize: Decrease,]
           key: [ Alt: '-']
-        - action: [ WriteChars: " reset\n",]
-          key: [ Ctrl: 'k']
     locked:
         - action: [SwitchToMode: Normal,]
           key: [Ctrl: 'g',]

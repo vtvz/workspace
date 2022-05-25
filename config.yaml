@@ -13,14 +13,14 @@ tools:
   kubernetes/kubectl: 1.24.0
   1password: 1.12.5
   aws/aws-cli: 2.7.2
-  GoogleCloudPlatform/cloud-sdk-docker: 386.0.0
+  GoogleCloudPlatform/cloud-sdk-docker: 387.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.7.1
   zsh-users/zsh-completions: 0.33.0
   softmoth/zsh-vim-mode: 1f9953b
 
-  junegunn/vim-plug: e300178
+  junegunn/vim-plug: 8fdabfb
 
   github:
     golangci/golangci-lint: 1.46.2
@@ -32,6 +32,7 @@ tools:
     aquasecurity/tfsec: 1.21.2
     tenable/terrascan: 1.15.1
     terraform-docs/terraform-docs: 0.16.0
+    plumber-cd/terraform-backend-git: 0.1.2
 
     helm/helm: 3.9.0
     roboll/helmfile: 0.144.0
@@ -55,6 +56,7 @@ tools:
     zellij-org/zellij: 0.28.1
 
     mozilla/sops: 3.7.3
+    FiloSottile/age: 1.0.0
     harness/drone-cli: 1.5.0
 
   pip:

@@ -10,6 +10,19 @@ A handy tools for your daily DevOps routine.
 
 ## Install
 
+### Add this to your Justfile
+
+```justfile
+set positional-arguments
+
+just := quote(just_executable())
+
+ws *args:
+  {{ just }} -f {{ quote(join(justfile_directory(), ".ws.justfile")) }} "$@"
+```
+
+### Run these commands
+
 ```shell
 git clone https://github.com/vtvz/workspace.git .ws
 # git clone git@github.com:vtvz/workspace.git .ws

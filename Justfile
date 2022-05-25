@@ -7,7 +7,7 @@ this := just + " -f " + quote(justfile())
 
 # Show this help
 help:
-  @just --list --unsorted
+  @{{ this }} --list --unsorted
 
 init:
   pre-commit install --allow-missing-config
@@ -79,12 +79,13 @@ _gomplate args:
 # Install workspace to the project
 install:
   @[ ! -L "{{ justfile_directory() }}/.meta" ] || (echo "Should be ran in the template itself" && false)
+  {{ this }} init
   ln -fs {{ file_name(justfile_directory()) }}/.meta ../.meta
   -rm {{ justfile_directory() }}/.meta/.meta
   ln -fs {{ file_name(justfile_directory()) }}/config.yaml ../.ws.config.yaml
   ln -fs {{ file_name(justfile_directory()) }}/docker-compose.yml ../.ws.docker-compose.yml
-  ln -fs {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
-  ln -fs {{ file_name(justfile_directory()) }}/Justfile ../Justfile
+  -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
+  ln -fs {{ file_name(justfile_directory()) }}/Justfile ../.ws.justfile
   -ln -fs ../{{ file_name(justfile_directory()) }}/.meta/idea/watcherTasks.xml ../.idea/watcherTasks.xml
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
 
@@ -94,7 +95,4 @@ update:
   set -x
   git pull origin master
   {{ just }} install
-  {{ just }} ../build
-
-ws +args:
-  {{ just }} -f {{ quote(invocation_directory() + "/.ws.justfile") }} {{ args }}
+  {{ this }} build

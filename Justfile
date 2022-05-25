@@ -40,7 +40,7 @@ validate:
   {{ this }} compose run --rm {{ container }} pre-commit run
 
 k profile="":
-  @shell="{{ `just _gomplate "-i '{{ .config.shell }}' --exec-pipe -- tr -d '\r'"` }}" \
+  @shell="$({{ this }} _gomplate "-i '{{{{ .config.shell }}' --exec-pipe -- tr -d '\r'")" \
     && konsole -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e \
     {{ if profile != "" { just + " profile " + quote(profile) } else { "" } }} {{ this }} "$shell" &
 

@@ -10,9 +10,9 @@ image: golang:{{ .version }}
 # Adding new tools require changing Dockerfile.tmpl
 tools:
   golang/go: 1.18.2
-  kubernetes/kubectl: 1.24.0
+  kubernetes/kubectl: 1.24.1
   1password: 1.12.5
-  aws/aws-cli: 2.7.2
+  aws/aws-cli: 2.7.3
   GoogleCloudPlatform/cloud-sdk-docker: 387.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0

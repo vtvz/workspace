@@ -19,7 +19,7 @@ git-cleanup:
 
 # Build/rebuild templates and docker image
 build prebuild='false':
-  {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
+  {{ this }} build-dotenv
   {{ this }} _build-dockerfile
   {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .meta/var/Dockerfile \
     | grep -P "FROM .* as .*" \
@@ -30,6 +30,9 @@ build prebuild='false':
 
 @_build-dockerfile:
   {{ this }} _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
+
+build-dotenv:
+  {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
 
 compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f .ws.docker-compose.yml {{ args }}

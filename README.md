@@ -17,7 +17,7 @@ set positional-arguments
 
 just := quote(just_executable())
 
-ws *args:
+@ws *args:
   {{ just }} -f {{ quote(join(justfile_directory(), ".ws.justfile")) }} "$@"
 ```
 
@@ -27,7 +27,7 @@ ws *args:
 git clone https://github.com/vtvz/workspace.git .ws
 # git clone git@github.com:vtvz/workspace.git .ws
 just .ws/install
-just build
-just profile [your aws-vault profile name] #optional
-just zsh
+just ws build
+just ws profile [your aws-vault profile name] #optional
+just ws zsh
 ```

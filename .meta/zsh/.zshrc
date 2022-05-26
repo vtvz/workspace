@@ -45,3 +45,26 @@ add-zsh-hook precmd zsh-notify-after-command
 alias opin='eval $(echo $OP_PASSWORD | op signin $OP_ADDRESS $OP_EMAIL $OP_SECRET_KEY)'
 
 source /opt/google-cloud-sdk/completion.zsh.inc
+
+#TODO Review https://unix.stackexchange.com/questions/336680/how-to-execute-command-without-storing-it-in-history-even-for-up-key-in-zsh
+
+ws-reset-widget () { echo; reset; zle redisplay }
+
+zle -N ws-reset-widget
+bindkey '^K' ws-reset-widget
+
+accept-line-with-sneaky () {
+    if [[ "$BUFFER" == "${BUFFER# }" ]] ; then
+        zle accept-line
+    else
+        echo
+        eval $BUFFER
+        echo
+        echo
+        BUFFER=''
+        zle reset-prompt
+    fi
+}
+
+zle -N accept-line-with-sneaky
+bindkey '^M' accept-line-with-sneaky

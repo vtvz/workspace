@@ -191,7 +191,7 @@ RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v1.0.0/age-v1
     && mv age/age age/age-keygen /tmp
 
 FROM core as gcloud
-
+# hadolint ignore=DL3003,DL4006
 RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
 
 FROM core
@@ -234,7 +234,7 @@ RUN pip3 install --no-cache-dir \
         {{ $p }}=={{ $v }} \
     {{ end }};
 
-
+# hadolint ignore=DL3059
 RUN mkdir -p /etc/tflint.d/plugins
 ENV TFLINT_PLUGIN_DIR /etc/tflint.d/plugins
 
@@ -342,12 +342,14 @@ RUN mv "$home/.bashrc" "$home/.bashrc_original" \
 RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
        "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
 
+# hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"
 ENV STARSHIP_CONFIG="$workdir/.meta/starship/config.toml"
 ENV CLOUDSDK_CONFIG="$workdir/.meta/var/gcloud"
+ENV TF_PLUGIN_CACHE_DIR="$workdir/.meta/var/tf/plugin-cache"
 
 WORKDIR $workdir
 

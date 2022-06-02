@@ -4,7 +4,7 @@ ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 FZF_BASE="/usr/share/fzf/"
 DISABLE_FZF_AUTO_COMPLETION="false"
 
-sed -i -E "s/plugins=\\(.*\\)/plugins=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions zsh-vim-mode fzf)/" ~/.zshrc_original
+sed -i -E "s/plugins=\\(.*\\)/plugins=(zsh-autosuggestions zsh-syntax-highlighting zsh-completions fzf)/" ~/.zshrc_original
 
 source ~/.zshrc_original
 
@@ -53,18 +53,18 @@ ws-reset-widget () { echo; reset; zle redisplay }
 zle -N ws-reset-widget
 bindkey '^K' ws-reset-widget
 
-accept-line-with-sneaky () {
-    if [[ "$BUFFER" == "${BUFFER# }" ]] ; then
-        zle accept-line
-    else
-        echo
-        eval $BUFFER
-        echo
-        echo
-        BUFFER=''
-        zle reset-prompt
-    fi
-}
-
-zle -N accept-line-with-sneaky
-bindkey '^M' accept-line-with-sneaky
+# accept-line-with-sneaky () {
+#     if [[ "$BUFFER" == "${BUFFER# }" ]] ; then
+#         zle accept-line
+#     else
+#         echo
+#         eval $BUFFER
+#         echo
+#         echo
+#         BUFFER=''
+#         zle reset-prompt
+#     fi
+# }
+#
+# zle -N accept-line-with-sneaky
+# bindkey '^M' accept-line-with-sneaky

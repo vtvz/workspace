@@ -12,8 +12,8 @@ tools:
   golang/go: 1.18.3
   kubernetes/kubectl: 1.24.1
   1password: 1.12.5
-  aws/aws-cli: 2.7.6
-  GoogleCloudPlatform/cloud-sdk-docker: 388.0.0
+  aws/aws-cli: 2.7.7
+  GoogleCloudPlatform/cloud-sdk-docker: 389.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.7.1
@@ -25,10 +25,10 @@ tools:
     golangci/golangci-lint: 1.46.2
 
     hashicorp/terraform: 1.2.2
-    gruntwork-io/terragrunt: 0.37.1
+    gruntwork-io/terragrunt: 0.37.2
     terraform-linters/tflint: 0.37.0
     terraform-linters/tflint-ruleset-aws: 0.14.0
-    aquasecurity/tfsec: 1.22.1
+    aquasecurity/tfsec: 1.23.0
     tenable/terrascan: 1.15.1
     terraform-docs/terraform-docs: 0.16.0
     plumber-cd/terraform-backend-git: 0.1.2
@@ -52,7 +52,7 @@ tools:
     starship/starship: 1.7.1
     neovim/neovim: 0.7.0
     junegunn/fzf: 0.30.0
-    zellij-org/zellij: 0.28.1
+    zellij-org/zellij: 0.30.0
 
     mozilla/sops: 3.7.3
     FiloSottile/age: 1.0.0
@@ -61,7 +61,7 @@ tools:
   pip:
     pre-commit: 2.19.0
     yamllint: 1.26.3
-    ansible: 5.8.0
+    ansible: 5.9.0
     hvac: 0.11.2
     ansible-lint: 6.2.2
 

@@ -27,6 +27,7 @@
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
 {{ $age := index $github "FiloSottile/age" -}}
+{{ $gitui := index $github "extrawurst/gitui" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -187,8 +188,14 @@ RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/downl
 
 FROM core as age
 # hadolint ignore=DL4006
-RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v1.0.0/age-v1.0.0-linux-amd64.tar.gz" | tar zx \
+RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v{{ $age }}/age-v{{ $age }}-linux-amd64.tar.gz" | tar zx \
     && mv age/age age/age-keygen /tmp
+
+FROM core as gitui
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/extrawurst/gitui/releases/download/v{{ $gitui }}/gitui-linux-musl.tar.gz" | tar zx \
+    && mv gitui /tmp/gitui
+
 
 FROM core as gcloud
 # hadolint ignore=DL3003,DL4006
@@ -280,6 +287,7 @@ COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
 COPY --from=zellij /tmp/zellij /usr/local/bin/zellij
+COPY --from=gitui /tmp/gitui /usr/local/bin/gitui
 COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
@@ -323,7 +331,7 @@ RUN mkdir -p /usr/share/fzf/ \
 
 ARG home="/home/user"
 RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password {{ .config.username }} \
-    && mkdir "$home/.config"
+    && mkdir "$home/.config" && chown 1000:1000 "$home/.config"
 
 USER 1000
 

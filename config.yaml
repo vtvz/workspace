@@ -53,6 +53,7 @@ tools:
     neovim/neovim: 0.7.0
     junegunn/fzf: 0.30.0
     zellij-org/zellij: 0.30.0
+    extrawurst/gitui: 0.20.1
 
     mozilla/sops: 3.7.3
     FiloSottile/age: 1.0.0

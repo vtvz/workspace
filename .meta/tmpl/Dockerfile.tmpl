@@ -211,8 +211,8 @@ RUN tmp="$(mktemp -d)" \
   && rm -rf "$tmp"
 
 FROM core as neovim
-RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim.appimage" -o "/tmp/nvim.appimage" \
-  && chmod u+x /tmp/nvim.appimage
+RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" -o "nvim.tar.gz" \
+  && mv nvim.tar.gz /tmp/nvim.tar.gz
 
 FROM core
 
@@ -228,11 +228,8 @@ RUN pip3 install --no-cache-dir \
 #neovim
 
 # hadolint ignore=DL3003
-RUN --mount=type=bind,from=neovim,source=/tmp/nvim.appimage,target=/tmp/nvim.appimage \
-    tmp="$(mktemp -d)" && cd "$tmp" \
-    && /tmp/nvim.appimage --appimage-extract \
-    && cp -ra "$tmp/squashfs-root/usr" / \
-    && rm -rf "$tmp"
+RUN --mount=type=bind,from=neovim,source=/tmp/nvim.tar.gz,target=/tmp/nvim.tar.gz \
+    tar xzf /tmp/nvim.tar.gz -C / --strip-components=1
 
 #gcloud
 

@@ -1,3 +1,3 @@
 {{ range $profile := .config.awsVaultProfiles -}}
-title: {{ $profile }};; command: just ws profile {{ $profile }} just ws {{ $.config.shell }} ;; profile: {{ $profile }}
+kitty @ launch --type=tab --tab-title "{{ $profile }}" --title "{{ $profile }}" just ws profile "{{ $profile }}" just ws "{{ $.config.shell }}";
 {{ end -}}

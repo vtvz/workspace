@@ -15,7 +15,7 @@ init:
   docker-compose -v
 
 git-cleanup:
-  git fetch -p && git branch -vv | grep ': gone]' | awk '{print $1}' | xargs git branch -D
+  git fetch -p && git branch --format='%(refname:short)%09%(upstream:track)' | grep -e '\[gone\]$' | awk '{print $1}' | xargs git branch -D
 
 # Build/rebuild templates and docker image
 build prebuild='false':
@@ -49,7 +49,7 @@ k profile="":
 
 ks:
   {{ this }} _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
-  konsole --tabs-from-file .meta/var/ktabs -e true &
+  kitty -o allow_remote_control=yes --detach bash -c "$(cat .meta/var/ktabs)"
 
 # Run bash terminal inside container
 bash:
@@ -60,7 +60,7 @@ zsh:
   {{ this }} _shell zsh
 
 _shell shell:
-  @{{ this }} compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL={{ shell }} {{ container }} zellij --session="${AWS_VAULT:-{{ shell }}}"
+  @{{ this }} compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL={{ shell }} {{ container }} {{ shell }}
 
 # Switch to AWS profile using aws-vault
 profile profile="" +cmd="$SHELL":

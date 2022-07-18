@@ -43,6 +43,11 @@ validate:
   cat .meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
   {{ this }} compose run --rm {{ container }} pre-commit run
 
+k profile="":
+  @shell="$({{ this }} _gomplate "-i '{{{{ .config.shell }}' --exec-pipe -- tr -d '\r'")" \
+    && kitty --title "{{ file_name(justfile_directory()) }}" --directory "{{ invocation_directory() }}" \
+      {{ if profile != "" { just + " profile " + quote(profile) } else { "" } }} {{ this }} "$shell"
+
 ks:
   {{ this }} _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
   kitty -o allow_remote_control=yes --detach bash -c "$(cat .meta/var/ktabs)"

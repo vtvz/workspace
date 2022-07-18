@@ -10,10 +10,11 @@ help:
   @{{ this }} --list --unsorted
 
 init:
-  pre-commit install --allow-missing-config
+  -pre-commit install --allow-missing-config
   docker -v
   docker-compose -v
 
+# Removes branches without remote
 git-cleanup:
   git fetch -p && git branch --format='%(refname:short)%09%(upstream:track)' | grep -e '\[gone\]$' | awk '{print $1}' | xargs git branch -D
 
@@ -34,18 +35,13 @@ build prebuild='false':
 build-dotenv:
   {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
 
-compose *args:
+@compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f .ws.docker-compose.yml {{ args }}
 
 validate:
   {{ this }} _build-dockerfile
   cat .meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
   {{ this }} compose run --rm {{ container }} pre-commit run
-
-k profile="":
-  @shell="$({{ this }} _gomplate "-i '{{{{ .config.shell }}' --exec-pipe -- tr -d '\r'")" \
-    && konsole -p tabtitle="{{ file_name(justfile_directory()) }}" --workdir "{{ invocation_directory() }}" -e \
-    {{ if profile != "" { just + " profile " + quote(profile) } else { "" } }} {{ this }} "$shell" &
 
 ks:
   {{ this }} _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
@@ -56,7 +52,7 @@ bash:
   {{ this }} _shell bash
 
 # Run zsh terminal inside container
-zsh:
+@zsh:
   {{ this }} _shell zsh
 
 _shell shell:
@@ -71,8 +67,8 @@ profile profile="" +cmd="$SHELL":
   aws-vault exec --duration=8h \
     $({{ if profile != "" { "echo " + quote(profile) } else { this + " _gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
-_gomplate args:
-  @docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \
+@_gomplate args:
+  docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \
     -d global=.ws.config.yaml \
     $(test -e .ws.config.local.yaml && echo "-d local=.ws.config.local.yaml") \
     $(test -e .ws.config.local.yaml || echo "-d local=.ws.config.yaml") \
@@ -92,6 +88,7 @@ install:
   -ln -fs ../{{ file_name(justfile_directory()) }}/.meta/idea/watcherTasks.xml ../.idea/watcherTasks.xml
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
 
+# Pull changes and rebuild
 update:
   #!/bin/bash -eu
   cd $(dirname $(readlink -f {{ quote(justfile()) }}))

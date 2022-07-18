@@ -5,4 +5,4 @@
 Justfile
 .ws*
 .idea
-lib
+/lib

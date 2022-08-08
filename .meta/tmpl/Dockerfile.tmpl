@@ -28,6 +28,7 @@
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
 {{ $age := index $github "FiloSottile/age" -}}
 {{ $gitui := index $github "extrawurst/gitui" -}}
+{{ $vault := index $github "hashicorp/vault" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -54,10 +55,6 @@ FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV EDITOR nano
-
-FROM core as terraform
-RUN curl -fL https://releases.hashicorp.com/terraform/{{ $terraform }}/terraform_{{ $terraform }}_linux_amd64.zip -o /tmp/terraform.zip \
-    && unzip /tmp/terraform.zip -d /tmp/ && rm /tmp/terraform.zip
 
 FROM core as terragrunt
 RUN curl -fL https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
@@ -257,7 +254,7 @@ ENV TFLINT_PLUGIN_DIR /etc/tflint.d/plugins
 # hadolint ignore=DL4006
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
 
-COPY --from=terraform /tmp/terraform /usr/local/bin/terraform
+COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/terraform
 COPY --from=terragrunt /tmp/terragrunt /usr/local/bin/terragrunt
 COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
@@ -288,6 +285,7 @@ COPY --from=gitui /tmp/gitui /usr/local/bin/gitui
 COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
+COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \

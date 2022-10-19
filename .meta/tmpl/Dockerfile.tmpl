@@ -44,7 +44,7 @@
 # hadolint ignore=DL3008
 RUN apt-get update \
     && apt-get install --no-install-recommends -y \
-      {{ join . " " }} \
+    {{ join . " " }} \
     && rm -rf /var/lib/apt/lists/*
 {{ end -}}
 
@@ -119,7 +119,7 @@ RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
 
 FROM core as helmfile
 RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
-  && chmod +x /tmp/helmfile
+    && chmod +x /tmp/helmfile
 
 FROM core as kubectx
 # hadolint ignore=DL4006
@@ -131,9 +131,9 @@ FROM core as kubens
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp
 
-FROM core as argocd
-RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
-    && chmod +x /tmp/argocd
+## FROM core as argocd
+## RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
+##     && chmod +x /tmp/argocd
 
 FROM core as drone
 # hadolint ignore=DL4006
@@ -153,10 +153,10 @@ FROM core as golangci_lint
 # hadolint ignore=DL4006
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
 
-FROM core as crossplane
-# hadolint ignore=DL4006
-RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
-    && chmod +x /tmp/kubectl-crossplane
+## FROM core as crossplane
+## # hadolint ignore=DL4006
+## RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
+##     && chmod +x /tmp/kubectl-crossplane
 
 FROM core as kubectl_tree
 # hadolint ignore=DL4006
@@ -200,16 +200,16 @@ RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downlo
 
 FROM core as awscliv2
 RUN tmp="$(mktemp -d)" \
-  && cd "$tmp" \
-  && curl -Lf "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-{{ $awscli }}.zip" -o "awscliv2.zip" \
-  && unzip awscliv2.zip \
-  && mkdir -p /tmp/awscliv2 \
-  && (shopt -s dotglob && mv ./aws/* /tmp/awscliv2) \
-  && rm -rf "$tmp"
+    && cd "$tmp" \
+    && curl -Lf "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-{{ $awscli }}.zip" -o "awscliv2.zip" \
+    && unzip awscliv2.zip \
+    && mkdir -p /tmp/awscliv2 \
+    && (shopt -s dotglob && mv ./aws/* /tmp/awscliv2) \
+    && rm -rf "$tmp"
 
 FROM core as neovim
 RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" -o "nvim.tar.gz" \
-  && mv nvim.tar.gz /tmp/nvim.tar.gz
+    && mv nvim.tar.gz /tmp/nvim.tar.gz
 
 FROM core
 
@@ -219,7 +219,7 @@ FROM core
 
 RUN pip3 install --no-cache-dir \
     {{ range $p, $v := .config.tools.pip -}}
-        {{ $p }}=={{ $v }} \
+{{ $p }}=={{ $v }} \
     {{ end }};
 
 #neovim
@@ -234,9 +234,9 @@ COPY --from=gcloud /opt/google-cloud-sdk /opt/google-cloud-sdk
 
 ENV PATH="/opt/google-cloud-sdk/bin:${PATH}"
 RUN gcloud config set core/disable_usage_reporting true \
-  && gcloud config set component_manager/disable_update_check true \
-  && gcloud config set metrics/environment github_docker_image \
-  && gcloud --version
+    && gcloud config set component_manager/disable_update_check true \
+    && gcloud config set metrics/environment github_docker_image \
+    && gcloud --version
 
 ENV GCLOUD_CLI_VERSION="{{ $gcloud }}"
 
@@ -275,8 +275,8 @@ COPY --from=kubectl_tree /tmp/kubectl-tree /usr/local/bin/kubectl-tree
 COPY --from=kube_lineage /tmp/kube-lineage /usr/local/bin/kubectl-lineage
 COPY --from=kubectl_neat /tmp/kubectl-neat /usr/local/bin/kubectl-neat
 COPY --from=ketall /tmp/ketall /usr/local/bin/ketall
-COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
-COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
+## COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
+## COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
@@ -289,18 +289,18 @@ COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 
 {{ $githubLast := index ($github | keys | reverse) 0 }}
 ENV GITHUB_VERSIONS='{ \
-  {{ range $p, $v := $github -}}
-    "{{ $p }}": "{{ $v }}"
-    {{- if ne $p $githubLast }},{{ end }} \
-  {{ end -}}
+    {{ range $p, $v := $github -}}
+"{{ $p }}": "{{ $v }}"
+{{- if ne $p $githubLast }},{{ end }} \
+    {{ end -}}
 }'
 
 {{ $pypiLast := index (.config.tools.pip | keys | reverse) 0 }}
 ENV PIP_VERSIONS='{ \
-  {{ range $p, $v := .config.tools.pip -}}
-    "{{ $p }}": "{{ $v }}"
-    {{- if ne $p $pypiLast }},{{ end }} \
-  {{ end -}}
+    {{ range $p, $v := .config.tools.pip -}}
+"{{ $p }}": "{{ $v }}"
+{{- if ne $p $pypiLast }},{{ end }} \
+    {{ end -}}
 }'
 
 RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
@@ -321,8 +321,8 @@ RUN completion="/usr/share/zsh/functions/Completion" \
     && helm completion zsh > "$completion/_helm.zsh"
 
 RUN mkdir -p /usr/share/fzf/ \
-  && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
-  && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
+    && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
 
 ARG home="/home/user"
 RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password {{ .config.username }} \
@@ -353,7 +353,7 @@ RUN mv "$home/.bashrc" "$home/.bashrc_original" \
 {{ $vim_plug := index .config.tools "junegunn/vim-plug" -}}
 
 RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-       "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
+    "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
 
 # hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"

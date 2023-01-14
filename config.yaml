@@ -1,5 +1,5 @@
 ---
-awsVaultProfiles: [ default ]
+awsVaultProfiles: [default]
 
 shell: zsh
 username: vtvz
@@ -22,50 +22,50 @@ tools:
   junegunn/vim-plug: 8fdabfb
 
   github:
-    golangci/golangci-lint: 1.50.0
+    golangci/golangci-lint: 1.50.1
 
-    hashicorp/terraform: 1.3.2
-    gruntwork-io/terragrunt: 0.39.2
-    terraform-linters/tflint: 0.41.0
-    terraform-linters/tflint-ruleset-aws: 0.17.1
-    aquasecurity/tfsec: 1.28.0
-    tenable/terrascan: 1.15.2
+    hashicorp/terraform: 1.3.7
+    gruntwork-io/terragrunt: 0.42.8
+    terraform-linters/tflint: 0.44.1
+    terraform-linters/tflint-ruleset-aws: 0.21.1
+    aquasecurity/tfsec: 1.28.1
+    tenable/terrascan: 1.17.1
     terraform-docs/terraform-docs: 0.16.0
     plumber-cd/terraform-backend-git: 0.1.2
 
-    helm/helm: 3.10.1
+    helm/helm: 3.10.3
     roboll/helmfile: 0.144.0
     databus23/helm-diff: 3.6.0
     ahmetb/kubectx: 0.9.4
-    argoproj/argo-cd: 2.2.15
-    crossplane/crossplane: 1.10.0
-    ahmetb/kubectl-tree: 0.4.2
+    argoproj/argo-cd: 2.5.6
+    crossplane/crossplane: 1.10.1
+    ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.3
     corneliusweig/ketall: 1.3.8
 
-    hadolint/hadolint: 2.10.0
-    zricethezav/gitleaks: 8.15.0
+    hadolint/hadolint: 2.12.0
+    zricethezav/gitleaks: 8.15.2
 
-    casey/just: 1.5.0
-    direnv/direnv: 2.32.1
-    starship/starship: 1.11.0
-    neovim/neovim: 0.8.0
-    junegunn/fzf: 0.34.0
-    zellij-org/zellij: 0.31.4
-    extrawurst/gitui: 0.21.0
+    casey/just: 1.11.0
+    direnv/direnv: 2.32.2
+    starship/starship: 1.12.0
+    neovim/neovim: 0.8.2
+    junegunn/fzf: 0.35.1
+    zellij-org/zellij: 0.34.4
+    extrawurst/gitui: 0.22.1
 
     mozilla/sops: 3.7.3
-    FiloSottile/age: 1.0.0
-    harness/drone-cli: 1.5.0
-    hashicorp/vault: 1.12.0
+    FiloSottile/age: 1.1.1
+    harness/drone-cli: 1.6.2
+    hashicorp/vault: 1.12.2
 
   pip:
     pre-commit: 2.20.0
     yamllint: 1.28.0
-    ansible: 6.5.0
+    ansible: 7.1.0
     hvac: 1.0.2
-    ansible-lint: 6.8.2
+    ansible-lint: 6.10.2
     passlib[bcrypt]: 1.7.4
 
 dotenv:

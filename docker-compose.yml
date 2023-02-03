@@ -16,6 +16,7 @@ services:
       - .meta/.tflint.hcl:/home/user/.tflint.hcl
       - .meta/var/.bash_history:/home/user/.bash_history
       - .meta/var/zsh:/home/user/.zsh_tmp
+      - .meta/var/jump:/home/user/.jump
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env

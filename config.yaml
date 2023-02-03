@@ -22,50 +22,52 @@ tools:
   junegunn/vim-plug: 8fdabfb
 
   github:
-    golangci/golangci-lint: 1.50.1
+    golangci/golangci-lint: 1.51.0
 
     hashicorp/terraform: 1.3.7
-    gruntwork-io/terragrunt: 0.42.8
+    gruntwork-io/terragrunt: 0.43.2
     terraform-linters/tflint: 0.44.1
-    terraform-linters/tflint-ruleset-aws: 0.21.1
+    terraform-linters/tflint-ruleset-aws: 0.21.2
     aquasecurity/tfsec: 1.28.1
     tenable/terrascan: 1.17.1
     terraform-docs/terraform-docs: 0.16.0
     plumber-cd/terraform-backend-git: 0.1.2
+    rebuy-de/aws-nuke: 2.21.2
 
-    helm/helm: 3.10.3
+    helm/helm: 3.11.0
     roboll/helmfile: 0.144.0
     databus23/helm-diff: 3.6.0
     ahmetb/kubectx: 0.9.4
-    argoproj/argo-cd: 2.5.6
-    crossplane/crossplane: 1.10.1
+    argoproj/argo-cd: 2.5.8
+    crossplane/crossplane: 1.10.2
     ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.3
     corneliusweig/ketall: 1.3.8
 
     hadolint/hadolint: 2.12.0
-    zricethezav/gitleaks: 8.15.2
+    zricethezav/gitleaks: 8.15.3
 
-    casey/just: 1.11.0
+    casey/just: 1.13.0
     direnv/direnv: 2.32.2
     starship/starship: 1.12.0
     neovim/neovim: 0.8.2
-    junegunn/fzf: 0.35.1
+    junegunn/fzf: 0.37.0
     zellij-org/zellij: 0.34.4
     extrawurst/gitui: 0.22.1
+    gsamokovarov/jump: 0.51.0
 
     mozilla/sops: 3.7.3
     FiloSottile/age: 1.1.1
-    harness/drone-cli: 1.6.2
+    harness/drone-cli: 1.7.0
     hashicorp/vault: 1.12.2
 
   pip:
     pre-commit: 2.20.0
     yamllint: 1.28.0
-    ansible: 7.1.0
+    ansible: 7.2.0
     hvac: 1.0.2
-    ansible-lint: 6.10.2
+    ansible-lint: 6.12.1
     passlib[bcrypt]: 1.7.4
 
 dotenv:

@@ -44,7 +44,9 @@ add-zsh-hook precmd zsh-notify-after-command
 
 alias opin='eval $(echo $OP_PASSWORD | op signin $OP_ADDRESS $OP_EMAIL $OP_SECRET_KEY)'
 
-source /opt/google-cloud-sdk/completion.zsh.inc
+if [[ -f /opt/google-cloud-sdk/completion.zsh.inc ]]; then
+  source /opt/google-cloud-sdk/completion.zsh.inc
+fi
 
 #TODO Review https://unix.stackexchange.com/questions/336680/how-to-execute-command-without-storing-it-in-history-even-for-up-key-in-zsh
 
@@ -76,3 +78,7 @@ gitui-ssh () {
     && gitui "${@:2}" \
     && eval "$(ssh-agent -k)"
 }
+
+if command -v jump &>/dev/null; then
+  eval "$(jump shell)"
+fi

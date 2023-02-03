@@ -13,28 +13,28 @@ reset=$(tput sgr0)
 bold=$(tput bold)
 
 function check {
-    repo=$1
-    current=$2
-    latest=$3
+  repo=$1
+  current=$2
+  latest=$3
 
-    if [[ "$latest" != "$current" ]]; then
-      echo "${red}* Update for $repo available $latest (current $current)${reset}"
-      available=$((available+1))
+  if [[ "$latest" != "$current" ]]; then
+    echo "${red}* Update for $repo available $latest (current $current)${reset}"
+    available=$((available + 1))
 
-      if [[ -f .ws.config.yaml && $action == "apply" ]]; then
-        sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws.config.yaml
-        applied=$((applied+1))
-      fi
-    else
-      echo "${green}- $repo up to date ($current)${reset}"
+    if [[ -f .ws.config.yaml && $action == "apply" ]]; then
+      sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws.config.yaml
+      applied=$((applied + 1))
     fi
+  else
+    echo "${green}- $repo up to date ($current)${reset}"
+  fi
 
 }
 
 function github {
   repo=$1
   path=$2
-  curl --config $curl_cfg -sf "https://api.github.com/repos/${repo}/$2" "${@:3}"
+  curl --config $curl_cfg -sf "https://api.github.com/repos/${repo}/${path}" "${@:3}"
 }
 
 curl_cfg=$(mktemp)

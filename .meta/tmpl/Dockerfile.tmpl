@@ -29,6 +29,8 @@
 {{ $age := index $github "FiloSottile/age" -}}
 {{ $gitui := index $github "extrawurst/gitui" -}}
 {{ $vault := index $github "hashicorp/vault" -}}
+{{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
+{{ $jump := index $github "gsamokovarov/jump" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -47,6 +49,18 @@ RUN apt-get update \
     {{ join . " " }} \
     && rm -rf /var/lib/apt/lists/*
 {{ end -}}
+
+{{ define "json-map" -}}
+'{ \
+    {{- $last := index (. | keys | reverse) 0 }}
+{{- range $p, $v := . }}
+{{- if $v }}
+"{{ $p }}": "{{ $v }}"
+{{- if ne $p $last }},{{ end }} \
+    {{- end }}
+{{- end }}
+}'
+{{- end }}
 
 FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
 
@@ -104,6 +118,10 @@ FROM core as hadolint
 RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
     && chmod +x /tmp/hadolint
 
+FROM core as jump
+RUN curl -fL https://github.com/gsamokovarov/jump/releases/download/v{{ $jump }}/jump_linux_amd64_binary -o /tmp/jump \
+    && chmod +x /tmp/jump
+
 FROM core as op
 RUN curl -fL https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
     && unzip /tmp/op.zip -d /tmp/ && rm /tmp/op.zip
@@ -131,9 +149,11 @@ FROM core as kubens
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp
 
-## FROM core as argocd
-## RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
-##     && chmod +x /tmp/argocd
+{{ if $argocd -}}
+FROM core as argocd
+RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
+    && chmod +x /tmp/argocd
+{{- end }}
 
 FROM core as drone
 # hadolint ignore=DL4006
@@ -153,10 +173,12 @@ FROM core as golangci_lint
 # hadolint ignore=DL4006
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
 
-## FROM core as crossplane
-## # hadolint ignore=DL4006
-## RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
-##     && chmod +x /tmp/kubectl-crossplane
+{{ if $crossplane -}}
+FROM core as crossplane
+# hadolint ignore=DL4006
+RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
+    && chmod +x /tmp/kubectl-crossplane
+{{- end }}
 
 FROM core as kubectl_tree
 # hadolint ignore=DL4006
@@ -193,10 +215,19 @@ FROM core as gitui
 RUN curl -fL "https://github.com/extrawurst/gitui/releases/download/v{{ $gitui }}/gitui-linux-musl.tar.gz" | tar zx \
     && mv gitui /tmp/gitui
 
+{{ if $aws_nuke -}}
+FROM core as aws_nuke
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/rebuy-de/aws-nuke/releases/download/v{{ $aws_nuke }}/aws-nuke-v{{ $aws_nuke }}-linux-amd64.tar.gz | tar zx \
+    && mv aws-nuke-v{{ $aws_nuke }}-linux-amd64 /tmp/aws-nuke
+{{- end }}
 
+
+{{ if $gcloud -}}
 FROM core as gcloud
 # hadolint ignore=DL3003,DL4006
 RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
+{{- end }}
 
 FROM core as awscliv2
 RUN tmp="$(mktemp -d)" \
@@ -228,6 +259,7 @@ RUN pip3 install --no-cache-dir \
 RUN --mount=type=bind,from=neovim,source=/tmp/nvim.tar.gz,target=/tmp/nvim.tar.gz \
     tar xzf /tmp/nvim.tar.gz -C / --strip-components=1
 
+{{ if $gcloud -}}
 #gcloud
 
 COPY --from=gcloud /opt/google-cloud-sdk /opt/google-cloud-sdk
@@ -239,6 +271,7 @@ RUN gcloud config set core/disable_usage_reporting true \
     && gcloud --version
 
 ENV GCLOUD_CLI_VERSION="{{ $gcloud }}"
+{{- end }}
 
 #awscliv2
 
@@ -275,8 +308,12 @@ COPY --from=kubectl_tree /tmp/kubectl-tree /usr/local/bin/kubectl-tree
 COPY --from=kube_lineage /tmp/kube-lineage /usr/local/bin/kubectl-lineage
 COPY --from=kubectl_neat /tmp/kubectl-neat /usr/local/bin/kubectl-neat
 COPY --from=ketall /tmp/ketall /usr/local/bin/ketall
-## COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
-## COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
+{{ if $crossplane -}}
+COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
+{{- end }}
+{{ if $argocd -}}
+COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
+{{- end }}
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
@@ -286,22 +323,14 @@ COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terr
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
 COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
+{{ if $aws_nuke -}}
+COPY --from=aws_nuke /tmp/aws-nuke /usr/local/bin/aws-nuke
+{{- end }}
+COPY --from=jump /tmp/jump /usr/local/bin/jump
 
-{{ $githubLast := index ($github | keys | reverse) 0 }}
-ENV GITHUB_VERSIONS='{ \
-    {{ range $p, $v := $github -}}
-"{{ $p }}": "{{ $v }}"
-{{- if ne $p $githubLast }},{{ end }} \
-    {{ end -}}
-}'
+ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 
-{{ $pypiLast := index (.config.tools.pip | keys | reverse) 0 }}
-ENV PIP_VERSIONS='{ \
-    {{ range $p, $v := .config.tools.pip -}}
-"{{ $p }}": "{{ $v }}"
-{{- if ne $p $pypiLast }},{{ end }} \
-    {{ end -}}
-}'
+ENV PIP_VERSIONS={{ template "json-map" .config.tools.pip }}
 
 RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
@@ -361,7 +390,9 @@ RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"
 ENV STARSHIP_CONFIG="$workdir/.meta/starship/config.toml"
+{{- if $gcloud }}
 ENV CLOUDSDK_CONFIG="$workdir/.meta/var/gcloud"
+{{- end }}
 ENV TF_PLUGIN_CACHE_DIR="$workdir/.meta/var/tf/plugin-cache"
 
 WORKDIR $workdir

@@ -23,7 +23,7 @@ build prebuild='false':
   {{ this }} build-dotenv
   {{ this }} _build-dockerfile
   {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .meta/var/Dockerfile \
-    | grep -P "FROM .* as .*" \
+    | grep -P "^FROM .* as .*" \
     | sed 's/FROM .* as //' \
     | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .meta/var/Dockerfile --target {} .
   {{ this }} compose build

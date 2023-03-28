@@ -20,14 +20,13 @@
 {{ $starship := index $github "starship/starship" -}}
 {{ $sops := index $github "mozilla/sops" -}}
 {{ $drone := index $github "harness/drone-cli" -}}
-{{ $gitleaks := index $github "zricethezav/gitleaks" -}}
+{{ $gitleaks := index $github "gitleaks/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
 {{ $fzf := index $github "junegunn/fzf" -}}
 {{ $zellij := index $github "zellij-org/zellij" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
 {{ $age := index $github "FiloSottile/age" -}}
-{{ $gitui := index $github "extrawurst/gitui" -}}
 {{ $vault := index $github "hashicorp/vault" -}}
 {{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
@@ -210,11 +209,6 @@ FROM core as age
 RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v{{ $age }}/age-v{{ $age }}-linux-amd64.tar.gz" | tar zx \
     && mv age/age age/age-keygen /tmp
 
-FROM core as gitui
-# hadolint ignore=DL4006
-RUN curl -fL "https://github.com/extrawurst/gitui/releases/download/v{{ $gitui }}/gitui-linux-musl.tar.gz" | tar zx \
-    && mv gitui /tmp/gitui
-
 {{ if $aws_nuke -}}
 FROM core as aws_nuke
 # hadolint ignore=DL4006
@@ -318,7 +312,6 @@ COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
 COPY --from=zellij /tmp/zellij /usr/local/bin/zellij
-COPY --from=gitui /tmp/gitui /usr/local/bin/gitui
 COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen

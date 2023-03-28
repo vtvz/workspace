@@ -71,14 +71,6 @@ bindkey '^K' ws-reset-widget
 # zle -N accept-line-with-sneaky
 # bindkey '^M' accept-line-with-sneaky
 
-gitui-ssh () {
-  key="${1:-$HOME/.ssh/id_rsa}"
-  eval "$(ssh-agent)" \
-    && ssh-add "$key" \
-    && gitui "${@:2}" \
-    && eval "$(ssh-agent -k)"
-}
-
 if command -v jump &>/dev/null; then
   eval "$(jump shell)"
 fi

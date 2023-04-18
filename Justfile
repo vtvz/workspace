@@ -72,6 +72,9 @@ profile profile="" +cmd="$SHELL":
   aws-vault exec --duration=8h \
     $({{ if profile != "" { "echo " + quote(profile) } else { this + " _gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
+profiles:
+  {{ this + " _gomplate \"-i '{{ .config.awsVaultProfiles | toJSON }}' --exec-pipe -- tr -d '\r'\"" }}
+
 @_gomplate args:
   docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \
     -d global=.ws.config.yaml \

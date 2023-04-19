@@ -93,6 +93,7 @@ install:
   ln -fs {{ file_name(justfile_directory()) }}/docker-compose.yml ../.ws.docker-compose.yml
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   ln -fs {{ file_name(justfile_directory()) }}/Justfile ../.ws.justfile
+  cp -f {{ justfile_directory() }}/.meta/.tflint.hcl ~/.tflint.hcl
   -ln -fs ../{{ file_name(justfile_directory()) }}/.meta/idea/watcherTasks.xml ../.idea/watcherTasks.xml
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
 

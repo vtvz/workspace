@@ -6,3 +6,5 @@ Justfile
 .ws*
 .idea
 /lib
+.null-ls*
+.nvim.lua

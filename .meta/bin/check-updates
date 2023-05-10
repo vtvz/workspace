@@ -12,6 +12,10 @@ green=$(tput setaf 2)
 reset=$(tput sgr0)
 bold=$(tput bold)
 
+urlencode() {
+  printf %s "$1" | jq -s -R -r @uri
+}
+
 function check {
   repo=$1
   current=$2
@@ -34,12 +38,12 @@ function check {
 function github {
   repo=$1
   path=$2
-  curl --config $curl_cfg -sf "https://api.github.com/repos/${repo}/${path}" "${@:3}"
+  curl --config "${curl_cfg}" -sf --show-error "https://api.github.com/repos/${repo}/${path}" "${@:3}"
 }
 
 curl_cfg=$(mktemp)
 if [[ -n "${GH_BASIC_AUTH:-}" ]]; then
-  echo "user = \"$GH_BASIC_AUTH\"" > "$curl_cfg"
+  echo "user = \"$GH_BASIC_AUTH\"" >"$curl_cfg"
 fi
 trap 'rv=$?; rm -f $curl_cfg; exit $rv' 0 2 3 15
 
@@ -57,22 +61,28 @@ for component in $(echo "$GITHUB_VERSIONS" | jq -cM 'to_entries | .[]'); do
 done
 
 for component in $(echo "$PIP_VERSIONS" | jq -cM 'to_entries | .[]'); do
-  repo=$(echo "$component" | jq -r '.key')
+  repo=$(urlencode "$(echo "$component" | jq -r '.key')")
   current=$(echo "$component" | jq -r '.value')
-  latest=$(curl -sf "https://pypi.org/pypi/${repo}/json" | jq -r '.info.version')
 
-  check "$repo" "$current" "$latest"
+  set +e
+  latest=$(curl -sf --show-error "https://pypi.org/pypi/${repo}/json" | jq -r '.info.version')
+  status=$?
+  set -e
+
+  if [ $status ]; then
+    check "$repo" "$current" "$latest"
+  fi
 done
 
 # kubectl
 current=$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion' | sed 's/^v*//g')
-latest=$(curl -sf https://storage.googleapis.com/kubernetes-release/release/stable.txt | sed 's/^v*//g')
+latest=$(curl -sf --show-error https://storage.googleapis.com/kubernetes-release/release/stable.txt | sed 's/^v*//g')
 check "kubernetes/kubectl" "$current" "$latest"
 
 # golang
 if [[ -n $GOLANG_VERSION ]]; then
   current=$GOLANG_VERSION
-  latest=$(curl -sf "https://go.dev/VERSION?m=text" | sed 's/^go//g')
+  latest=$(curl -sf --show-error "https://go.dev/VERSION?m=text" | sed 's/^go//g')
   check "golang/go" "$current" "$latest"
 fi
 
@@ -82,9 +92,11 @@ latest=$(github "aws/aws-cli" "tags" | jq -r '[.[] | select( .name | test("^2"))
 check "aws/aws-cli" "$current" "$latest"
 
 #gcloud
-current=$GCLOUD_CLI_VERSION
-latest=$(github "GoogleCloudPlatform/cloud-sdk-docker" "tags" | jq -r '[.[] | select( .name | test("^\\d")) | .name][0]')
-check "GoogleCloudPlatform/cloud-sdk-docker" "$current" "$latest"
+if [[ -n "${GCLOUD_CLI_VERSION:-}" ]]; then
+  current=$GCLOUD_CLI_VERSION
+  latest=$(github "GoogleCloudPlatform/cloud-sdk-docker" "tags" | jq -r '[.[] | select( .name | test("^\\d")) | .name][0]')
+  check "GoogleCloudPlatform/cloud-sdk-docker" "$current" "$latest"
+fi
 
 op update
 

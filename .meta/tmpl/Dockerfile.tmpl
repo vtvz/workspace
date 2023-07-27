@@ -23,7 +23,6 @@
 {{ $gitleaks := index $github "gitleaks/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
 {{ $fzf := index $github "junegunn/fzf" -}}
-{{ $zellij := index $github "zellij-org/zellij" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
 {{ $age := index $github "FiloSottile/age" -}}
@@ -35,6 +34,7 @@
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
 {{ $kubectl_neat := index $github "itaysk/kubectl-neat" -}}
 {{ $ketall := index $github "corneliusweig/ketall" -}}
+{{ $astronvim := index $github "AstroNvim/AstroNvim" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
@@ -107,11 +107,6 @@ FROM core as fzf
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/junegunn/fzf/releases/download/{{ $fzf }}/fzf-{{ $fzf }}-linux_amd64.tar.gz | tar zx \
     && mv fzf /tmp
-
-FROM core as zellij
-# hadolint ignore=DL4006
-RUN curl -fL "https://github.com/zellij-org/zellij/releases/download/v{{ $zellij }}/zellij-x86_64-unknown-linux-musl.tar.gz" | tar zx \
-    && mv zellij /tmp
 
 FROM core as hadolint
 RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
@@ -305,7 +300,6 @@ COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
 COPY --from=gitleaks /tmp/gitleaks /usr/local/bin/gitleaks
 COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
-COPY --from=zellij /tmp/zellij /usr/local/bin/zellij
 COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
@@ -369,8 +363,8 @@ RUN mv "$home/.bashrc" "$home/.bashrc_original" \
 
 {{ $vim_plug := index .config.tools "junegunn/vim-plug" -}}
 
-RUN curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
-    "https://raw.githubusercontent.com/junegunn/vim-plug/{{ $vim_plug }}/plug.vim"
+RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/AstroNvim ~/.config/nvim \
+    && git clone --depth 1 https://github.com/vtvz/astronvim ~/.config/astronvim/lua
 
 # hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"

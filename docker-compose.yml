@@ -11,7 +11,6 @@ services:
       - ~/.ssh:/home/user/.ssh
       - .meta/var/op:/home/user/.config/op
       - .meta/nvim:/home/user/.config/nvim
-      - .meta/zellij:/home/user/.config/zellij
       - .meta/var/kube:/home/user/.kube
       - .meta/.tflint.hcl:/home/user/.tflint.hcl
       - .meta/var/.bash_history:/home/user/.bash_history
@@ -20,6 +19,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env
+      - .ws.env
     environment:
       AWS_VAULT: ${AWS_VAULT:-}
       AWS_DEFAULT_REGION: ${AWS_DEFAULT_REGION:-}

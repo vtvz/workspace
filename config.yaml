@@ -52,6 +52,7 @@ tools:
     direnv/direnv: 2.32.3
     starship/starship: 1.15.0
     neovim/neovim: 0.9.1
+    AstroNvim/AstroNvim: 3.34.0
     junegunn/fzf: 0.42.0
     zellij-org/zellij: 0.37.2
     gsamokovarov/jump: 0.51.0

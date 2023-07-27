@@ -1,5 +1,6 @@
 set dotenv-load := false
 
+
 container := "workspace"
 workdir := "/workspace"
 just := quote(just_executable())
@@ -33,7 +34,7 @@ build prebuild='false':
   {{ this }} _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
 
 build-dotenv:
-  {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .env"
+  {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .ws.env"
 
 @compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f .ws.docker-compose.yml {{ args }}
@@ -94,7 +95,6 @@ install:
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   ln -fs {{ file_name(justfile_directory()) }}/Justfile ../.ws.justfile
   cp -f {{ justfile_directory() }}/.meta/.tflint.hcl ~/.tflint.hcl
-  -ln -fs ../{{ file_name(justfile_directory()) }}/.meta/idea/watcherTasks.xml ../.idea/watcherTasks.xml
   cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
 
 # Pull changes and rebuild

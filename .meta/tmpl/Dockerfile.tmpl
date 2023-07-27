@@ -18,7 +18,7 @@
 {{ $just := index $github "casey/just" -}}
 {{ $direnv := index $github "direnv/direnv" -}}
 {{ $starship := index $github "starship/starship" -}}
-{{ $sops := index $github "mozilla/sops" -}}
+{{ $sops := index $github "getsops/sops" -}}
 {{ $drone := index $github "harness/drone-cli" -}}
 {{ $gitleaks := index $github "gitleaks/gitleaks" -}}
 {{ $neovim := index $github "neovim/neovim" -}}
@@ -160,7 +160,7 @@ RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }
     && cp drone /tmp
 
 FROM core as sops
-RUN curl -fL https://github.com/mozilla/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
+RUN curl -fL https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
     && chmod +x /tmp/sops
 
 FROM core as gitleaks
@@ -233,25 +233,19 @@ RUN tmp="$(mktemp -d)" \
     && rm -rf "$tmp"
 
 FROM core as neovim
-RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" -o "nvim.tar.gz" \
-    && mv nvim.tar.gz /tmp/nvim.tar.gz
+RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage" -o "/tmp/nvim" \
+    && chmod +x /tmp/nvim
 
-FROM core
+FROM core as build
 
-{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff") }}
+{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff" "bash") }}
 
 {{ template "apt-get install" .config.extraPackages }}
 
-RUN pip3 install --no-cache-dir \
+RUN pip3 install --break-system-packages --no-cache-dir \
     {{ range $p, $v := .config.tools.pip -}}
 {{ $p }}=={{ $v }} \
     {{ end }};
-
-#neovim
-
-# hadolint ignore=DL3003
-RUN --mount=type=bind,from=neovim,source=/tmp/nvim.tar.gz,target=/tmp/nvim.tar.gz \
-    tar xzf /tmp/nvim.tar.gz -C / --strip-components=1
 
 {{ if $gcloud -}}
 #gcloud
@@ -320,6 +314,7 @@ COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 COPY --from=aws_nuke /tmp/aws-nuke /usr/local/bin/aws-nuke
 {{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
+COPY --from=neovim /tmp/nvim /usr/local/bin/nvim
 
 ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 
@@ -336,8 +331,8 @@ RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
 
 RUN completion="/usr/share/zsh/functions/Completion" \
     && kubectl completion zsh > "$completion/_kubectl.zsh" \
-    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.zsh" -o "$completion/_kubens.zsh" \
-    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.zsh" -o "$completion/_kubens.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubens.zsh" -o "$completion/_kubens.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubectx.zsh" -o "$completion/_kubectx.zsh" \
     && just --completions zsh > "$completion/_just.zsh" \
     && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
     && helm completion zsh > "$completion/_helm.zsh"

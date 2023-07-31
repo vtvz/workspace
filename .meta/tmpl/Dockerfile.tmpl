@@ -228,8 +228,7 @@ RUN tmp="$(mktemp -d)" \
     && rm -rf "$tmp"
 
 FROM core as neovim
-RUN curl -Lf "https://github.com/neovim/neovim/releases/download/v0.9.1/nvim.appimage" -o "/tmp/nvim" \
-    && chmod +x /tmp/nvim
+RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" | tar zx
 
 FROM core as build
 
@@ -308,7 +307,9 @@ COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 COPY --from=aws_nuke /tmp/aws-nuke /usr/local/bin/aws-nuke
 {{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
-COPY --from=neovim /tmp/nvim /usr/local/bin/nvim
+COPY --from=neovim /opt/nvim-linux64 /opt/neovim
+
+RUN ln -s /opt/neovim/bin/nvim /usr/local/bin/nvim
 
 ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 

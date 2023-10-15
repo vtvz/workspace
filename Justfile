@@ -30,10 +30,10 @@ ws-build prebuild='false':
   {{ this }} compose build
 
 @_ws-build-dockerfile:
-  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/Dockerfile.tmpl -o .ws/var/Dockerfile"
+  {{ this }} _ws-gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"
 
 ws-build-dotenv:
-  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/.env.tmpl -o .ws.env"
+  {{ this }} _ws-gomplate "-f .ws/templates/.env.tmpl -o .ws.env"
 
 @compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}

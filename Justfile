@@ -23,24 +23,24 @@ git-cleanup:
 ws-build prebuild='false':
   {{ this }} ws-build-dotenv
   {{ this }} _ws-build-dockerfile
-  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/.meta/var/Dockerfile \
+  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/meta/var/Dockerfile \
     | grep -P "^FROM .* as .*" \
     | sed 's/FROM .* as //' \
-    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/.meta/var/Dockerfile --target {} .
+    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/meta/var/Dockerfile --target {} .
   {{ this }} compose build
 
 @_ws-build-dockerfile:
-  {{ this }} _ws-gomplate "-f .ws/.meta/tmpl/Dockerfile.tmpl -o .ws/.meta/var/Dockerfile"
+  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/Dockerfile.tmpl -o .ws/meta/var/Dockerfile"
 
 ws-build-dotenv:
-  {{ this }} _ws-gomplate "-f .ws/.meta/tmpl/.env.tmpl -o .ws.env"
+  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/.env.tmpl -o .ws.env"
 
 @compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}
 
 validate:
   {{ this }} _build-dockerfile
-  cat .ws/.meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
+  cat .ws/meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
   {{ this }} compose run --rm {{ container }} pre-commit run
 
 # Run zsh terminal inside container
@@ -73,7 +73,7 @@ ws-install:
   {{ this }} ws-init
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   touch {{ file_name(justfile_directory()) }}
-  cp -f {{ justfile_directory() }}/.ws/.meta/.tflint.hcl ~/.tflint.hcl
+  cp -f {{ justfile_directory() }}/.ws/meta/.tflint.hcl ~/.tflint.hcl
   git config core.excludesFile .ws/project.gitignore
 
 # Pull changes and rebuild

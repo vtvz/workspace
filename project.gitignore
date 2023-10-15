@@ -1,7 +1,6 @@
 .directory
 .env
 .gitleaks.toml
-.meta
 Justfile
 .ws.*
 ws.*

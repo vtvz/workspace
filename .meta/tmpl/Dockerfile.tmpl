@@ -120,6 +120,7 @@ FROM core as op
 RUN curl -fL https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
     && unzip /tmp/op.zip -d /tmp/ && rm /tmp/op.zip
 
+{{ if .config.tools.enabled.kubernetes -}}
 FROM core as kubectl
 RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
@@ -143,36 +144,14 @@ FROM core as kubens
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp
 
-{{ if $argocd -}}
 FROM core as argocd
 RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
     && chmod +x /tmp/argocd
-{{- end }}
 
-FROM core as drone
-# hadolint ignore=DL4006
-RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
-    && cp drone /tmp
-
-FROM core as sops
-RUN curl -fL https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux -o /tmp/sops \
-    && chmod +x /tmp/sops
-
-FROM core as gitleaks
-# hadolint ignore=DL4006
-RUN curl -fL https://github.com/zricethezav/gitleaks/releases/download/v{{ $gitleaks }}/gitleaks_{{ $gitleaks }}_linux_x64.tar.gz | tar zx \
-    && mv gitleaks /tmp
-
-FROM core as golangci_lint
-# hadolint ignore=DL4006
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
-
-{{ if $crossplane -}}
 FROM core as crossplane
 # hadolint ignore=DL4006
 RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
     && chmod +x /tmp/kubectl-crossplane
-{{- end }}
 
 FROM core as kubectl_tree
 # hadolint ignore=DL4006
@@ -194,6 +173,26 @@ FROM core as ketall
 RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ketall }}/ketall-amd64-linux.tar.gz" | tar zx \
     && mv ketall-amd64-linux /tmp/ketall
 
+{{- end }}
+
+FROM core as drone
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
+    && cp drone /tmp
+
+FROM core as sops
+RUN curl -fL https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux.amd64  -o /tmp/sops \
+    && chmod +x /tmp/sops
+
+FROM core as gitleaks
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/zricethezav/gitleaks/releases/download/v{{ $gitleaks }}/gitleaks_{{ $gitleaks }}_linux_x64.tar.gz | tar zx \
+    && mv gitleaks /tmp
+
+FROM core as golangci_lint
+# hadolint ignore=DL4006
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
+
 FROM core as terraform_backend_git
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64"  -o /tmp/terraform-backend-git \
@@ -203,14 +202,6 @@ FROM core as age
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v{{ $age }}/age-v{{ $age }}-linux-amd64.tar.gz" | tar zx \
     && mv age/age age/age-keygen /tmp
-
-{{ if $aws_nuke -}}
-FROM core as aws_nuke
-# hadolint ignore=DL4006
-RUN curl -fL https://github.com/rebuy-de/aws-nuke/releases/download/v{{ $aws_nuke }}/aws-nuke-v{{ $aws_nuke }}-linux-amd64.tar.gz | tar zx \
-    && mv aws-nuke-v{{ $aws_nuke }}-linux-amd64 /tmp/aws-nuke
-{{- end }}
-
 
 {{ if $gcloud -}}
 FROM core as gcloud
@@ -279,21 +270,19 @@ COPY --from=terrascan /tmp/terrascan /usr/local/bin/terrascan
 COPY --from=just /tmp/just /usr/local/bin/just
 COPY --from=direnv /tmp/direnv /usr/local/bin/direnv
 COPY --from=op /tmp/op /usr/local/bin/op
+COPY --from=sops /tmp/sops /usr/local/bin/sops
+COPY --from=drone /tmp/drone /usr/local/bin/drone
+{{ if .config.tools.enabled.kubernetes -}}
 COPY --from=kubectl /tmp/kubectl /usr/local/bin/kubectl
 COPY --from=helm /tmp/helm /usr/local/bin/helm
 COPY --from=helmfile /tmp/helmfile /usr/local/bin/helmfile
-COPY --from=sops /tmp/sops /usr/local/bin/sops
-COPY --from=drone /tmp/drone /usr/local/bin/drone
 COPY --from=kubectx /tmp/kubectx /usr/local/bin/kctx
 COPY --from=kubens /tmp/kubens /usr/local/bin/kns
 COPY --from=kubectl_tree /tmp/kubectl-tree /usr/local/bin/kubectl-tree
 COPY --from=kube_lineage /tmp/kube-lineage /usr/local/bin/kubectl-lineage
 COPY --from=kubectl_neat /tmp/kubectl-neat /usr/local/bin/kubectl-neat
 COPY --from=ketall /tmp/ketall /usr/local/bin/ketall
-{{ if $crossplane -}}
 COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
-{{- end }}
-{{ if $argocd -}}
 COPY --from=argocd /tmp/argocd /usr/local/bin/argocd
 {{- end }}
 COPY --from=hadolint /tmp/hadolint /usr/local/bin/hadolint
@@ -302,9 +291,8 @@ COPY --from=fzf /tmp/fzf /usr/local/bin/fzf
 COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terraform-backend-git
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
-COPY --from=vault:{{ $vault }} /bin/vault /usr/local/bin/vault
+COPY --from=hashicorp/vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 {{ if $aws_nuke -}}
-COPY --from=aws_nuke /tmp/aws-nuke /usr/local/bin/aws-nuke
 {{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
 COPY --from=neovim /opt/nvim-linux64 /opt/neovim

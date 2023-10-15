@@ -7,10 +7,10 @@ just := quote(just_executable())
 this := just + " -f " + quote(justfile())
 
 # Show this help
-help:
-  @{{ this }} --list --unsorted
+@help:
+  {{ this }} --list --unsorted
 
-init:
+ws-init:
   -pre-commit install --allow-missing-config
   docker -v
   docker-compose -v
@@ -19,50 +19,33 @@ init:
 git-cleanup:
   git fetch -p && git branch --format='%(refname:short)%09%(upstream:track)' | grep -e '\[gone\]$' | awk '{print $1}' | xargs git branch -D
 
-# Build/rebuild templates and docker image
-build prebuild='false':
-  {{ this }} build-dotenv
-  {{ this }} _build-dockerfile
-  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .meta/var/Dockerfile \
+# nuild/rebuild templates and docker image
+ws-build prebuild='false':
+  {{ this }} ws-build-dotenv
+  {{ this }} _ws-build-dockerfile
+  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/.meta/var/Dockerfile \
     | grep -P "^FROM .* as .*" \
     | sed 's/FROM .* as //' \
-    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .meta/var/Dockerfile --target {} .
+    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/.meta/var/Dockerfile --target {} .
   {{ this }} compose build
-  touch .meta/var/.bash_history
 
-@_build-dockerfile:
-  {{ this }} _gomplate "-f .meta/tmpl/Dockerfile.tmpl -o .meta/var/Dockerfile"
+@_ws-build-dockerfile:
+  {{ this }} _ws-gomplate "-f .ws/.meta/tmpl/Dockerfile.tmpl -o .ws/.meta/var/Dockerfile"
 
-build-dotenv:
-  {{ this }} _gomplate "-f .meta/tmpl/.env.tmpl -o .ws.env"
+ws-build-dotenv:
+  {{ this }} _ws-gomplate "-f .ws/.meta/tmpl/.env.tmpl -o .ws.env"
 
 @compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f .ws.docker-compose.yml {{ args }}
 
 validate:
   {{ this }} _build-dockerfile
-  cat .meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
+  cat .ws/.meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
   {{ this }} compose run --rm {{ container }} pre-commit run
 
-k profile="":
-  @shell="$({{ this }} _gomplate "-i '{{{{ .config.shell }}' --exec-pipe -- tr -d '\r'")" \
-    && kitty --title "{{ file_name(justfile_directory()) }}" --directory "{{ invocation_directory() }}" \
-      {{ if profile != "" { just + " profile " + quote(profile) } else { "" } }} {{ this }} "$shell"
-
-ks:
-  {{ this }} _gomplate "-f .meta/tmpl/ktabs.tmpl -o .meta/var/ktabs"
-  kitty -o allow_remote_control=yes --detach bash -c "$(cat .meta/var/ktabs)"
-
-# Run bash terminal inside container
-bash:
-  {{ this }} _shell bash
-
 # Run zsh terminal inside container
-@zsh:
-  {{ this }} _shell zsh
-
-_shell shell:
-  @{{ this }} compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL={{ shell }} {{ container }} {{ shell }}
+shell:
+  @{{ this }} compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
 
 # Switch to AWS profile using aws-vault
 profile profile="" +cmd="$SHELL":
@@ -71,37 +54,33 @@ profile profile="" +cmd="$SHELL":
   flock -x "$lock_fd"
   cd {{ invocation_directory() }}
   aws-vault exec --duration=8h \
-    $({{ if profile != "" { "echo " + quote(profile) } else { this + " _gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
+    $({{ if profile != "" { "echo " + quote(profile) } else { this + " _ws-gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
 profiles:
-  {{ this + " _gomplate \"-i '{{ .config.awsVaultProfiles | toJSON }}' --exec-pipe -- tr -d '\r'\"" }}
+  {{ this + " _ws-gomplate \"-i '{{ .config.awsVaultProfiles | toJSON }}' --exec-pipe -- tr -d '\r'\"" }}
 
-@_gomplate args:
+@_ws-gomplate args:
   docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \
-    -d global=.ws.config.yaml \
+    -d global=.ws/config.yaml \
     $(test -e .ws.config.local.yaml && echo "-d local=.ws.config.local.yaml") \
-    $(test -e .ws.config.local.yaml || echo "-d local=.ws.config.yaml") \
+    $(test -e .ws.config.local.yaml || echo "-d local=.ws/config.yaml") \
     -c "config=merge:local|global" \
     {{ args }}
 
 # Install workspace to the project
-install:
-  @[ ! -L "{{ justfile_directory() }}/.meta" ] || (echo "Should be ran in the template itself" && false)
-  {{ this }} init
-  ln -fs {{ file_name(justfile_directory()) }}/.meta ../.meta
-  -rm {{ justfile_directory() }}/.meta/.meta
-  ln -fs {{ file_name(justfile_directory()) }}/config.yaml ../.ws.config.yaml
-  ln -fs {{ file_name(justfile_directory()) }}/docker-compose.yml ../.ws.docker-compose.yml
+ws-install:
+  @[ ! -L "{{ justfile_directory() }}/.ws" ] || (echo "Should be ran in the project itself" && false)
+  {{ this }} ws-init
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
-  ln -fs {{ file_name(justfile_directory()) }}/Justfile ../.ws.justfile
-  cp -f {{ justfile_directory() }}/.meta/.tflint.hcl ~/.tflint.hcl
-  cd .. && git config core.excludesFile {{ file_name(justfile_directory()) }}/project.gitignore
+  touch {{ file_name(justfile_directory()) }}
+  cp -f {{ justfile_directory() }}/.ws/.meta/.tflint.hcl ~/.tflint.hcl
+  git config core.excludesFile .ws/project.gitignore
 
 # Pull changes and rebuild
-update:
+ws-update:
   #!/bin/bash -eu
   cd $(dirname $(readlink -f {{ quote(justfile()) }}))
   set -x
   git pull origin master
-  {{ just }} install
-  {{ this }} build
+  {{ just }} ws-install
+  {{ this }} ws-build

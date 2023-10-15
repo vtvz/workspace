@@ -10,24 +10,27 @@ A handy tools for your daily DevOps routine.
 
 ## Install
 
+### Add this to your zshrc or bashrc
+
+```bash
+export JUST_UNSTABLE=true
+```
+
 ### Add this to your Justfile
 
 ```justfile
+!include .ws/Justfile
+
 set positional-arguments
-
-just := quote(just_executable())
-
-@ws *args:
-  {{ just }} -f {{ quote(join(justfile_directory(), ".ws.justfile")) }} "$@"
 ```
 
 ### Run these commands
 
 ```shell
-git clone https://github.com/vtvz/workspace.git .ws
-# git clone git@github.com:vtvz/workspace.git .ws
-just .ws/install
-just ws build
-just ws profile [your aws-vault profile name] #optional
-just ws zsh
+git clone git@github.com:vtvz/workspace.git .ws
+# git clone https://github.com/vtvz/workspace.git .ws
+just ws-install
+just ws-build
+just profile [your aws-vault profile name] #optional
+just shell
 ```

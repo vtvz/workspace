@@ -303,29 +303,22 @@ ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 
 ENV PIP_VERSIONS={{ template "json-map" .config.tools.pip }}
 
-RUN kubectl completion bash > /etc/bash_completion.d/kubectl \
-    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubectx.bash" -o /etc/bash_completion.d/kubectx \
-    && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/kubens.bash" -o /etc/bash_completion.d/kubens \
-    && just --completions bash > /etc/bash_completion.d/just \
-    && gitleaks completion bash > /etc/bash_completion.d/gitleaks \
-    && helm completion bash > /etc/bash_completion.d/helm \
-    && echo 'complete -C /usr/local/bin/terraform terraform tf' > /etc/bash_completion.d/terraform \
-    && echo 'complete -C /usr/local/bin/aws_completer aws' > /etc/bash_completion.d/aws
-
+{{ if .config.tools.enabled.kubernetes -}}
 RUN completion="/usr/share/zsh/functions/Completion" \
     && kubectl completion zsh > "$completion/_kubectl.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubens.zsh" -o "$completion/_kubens.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubectx.zsh" -o "$completion/_kubectx.zsh" \
-    && just --completions zsh > "$completion/_just.zsh" \
-    && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
     && helm completion zsh > "$completion/_helm.zsh"
+{{- end }}
 
-RUN mkdir -p /usr/share/fzf/ \
+RUN just --completions zsh > "$completion/_just.zsh" \
+    && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
+    && mkdir -p /usr/share/fzf/ \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
 
 ARG home="/home/user"
-RUN adduser --home "$home" --shell /bin/bash --uid 1000 --disabled-password {{ .config.username }} \
+RUN adduser --home "$home" --shell /bin/usr/zsh --uid 1000 --disabled-password {{ .config.username }} \
     && mkdir "$home/.config" && chown 1000:1000 "$home/.config"
 
 USER 1000
@@ -345,18 +338,16 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
     && git clone https://github.com/zsh-users/zsh-completions.git --depth 1 --branch {{ $zsh_completions }} "$plugins/zsh-completions" \
     && find "$plugins" -name .git -type d -prune -exec rm -rf {} \;
 
-RUN mv "$home/.bashrc" "$home/.bashrc_original" \
-    && ln -s "$workdir/.meta/tmpl/.bashrc" "$home/.bashrc" \
-    && mv "$home/.zshrc" "$home/.zshrc_original" \
+RUN mv "$home/.zshrc" "$home/.zshrc_original" \
     && ln -s "$workdir/.meta/zsh/.zshrc" "$home/.zshrc"
-
-{{ $vim_plug := index .config.tools "junegunn/vim-plug" -}}
 
 RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/AstroNvim ~/.config/nvim \
     && git clone --depth 1 https://github.com/vtvz/astronvim ~/.config/astronvim/lua
 
+{{ if .config.tools.enabled.kubernetes -}}
 # hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
+{{- end }}
 
 ENV PATH="$workdir/.meta/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.meta/direnv"

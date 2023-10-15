@@ -23,14 +23,14 @@ git-cleanup:
 ws-build prebuild='false':
   {{ this }} ws-build-dotenv
   {{ this }} _ws-build-dockerfile
-  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/meta/var/Dockerfile \
+  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/var/Dockerfile \
     | grep -P "^FROM .* as .*" \
     | sed 's/FROM .* as //' \
-    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/meta/var/Dockerfile --target {} .
+    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/var/Dockerfile --target {} .
   {{ this }} compose build
 
 @_ws-build-dockerfile:
-  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/Dockerfile.tmpl -o .ws/meta/var/Dockerfile"
+  {{ this }} _ws-gomplate "-f .ws/meta/tmpl/Dockerfile.tmpl -o .ws/var/Dockerfile"
 
 ws-build-dotenv:
   {{ this }} _ws-gomplate "-f .ws/meta/tmpl/.env.tmpl -o .ws.env"
@@ -40,7 +40,7 @@ ws-build-dotenv:
 
 validate:
   {{ this }} _build-dockerfile
-  cat .ws/meta/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
+  cat .ws/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
   {{ this }} compose run --rm {{ container }} pre-commit run
 
 # Run zsh terminal inside container

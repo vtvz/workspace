@@ -349,13 +349,13 @@ RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 {{- end }}
 
-ENV PATH="$workdir/.ws/meta/bin:${PATH}"
+ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.ws/meta/direnv"
 ENV STARSHIP_CONFIG="$workdir/.ws/meta/starship/config.toml"
 {{- if $gcloud }}
-ENV CLOUDSDK_CONFIG="$workdir/.ws/meta/var/gcloud"
+ENV CLOUDSDK_CONFIG="$workdir/.ws/var/gcloud"
 {{- end }}
-ENV TF_PLUGIN_CACHE_DIR="$workdir/.ws/meta/var/tf/plugin-cache"
+ENV TF_PLUGIN_CACHE_DIR="$workdir/.ws/var/tf/plugin-cache"
 
 WORKDIR $workdir
 

@@ -3,7 +3,9 @@
 .gitleaks.toml
 .meta
 Justfile
-.ws*
+.ws.*
+ws.*
+/.ws
 .idea
 /lib
 .null-ls*

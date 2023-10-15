@@ -3,17 +3,17 @@ services:
   workspace:
     build:
       context: .
-      dockerfile: .meta/var/Dockerfile
+      dockerfile: .ws/.meta/var/Dockerfile
       args:
         workdir: /workspace
     volumes:
       - .:/workspace
       - ~/.ssh:/home/user/.ssh
-      - .meta/var/op:/home/user/.config/op
-      - .meta/var/kube:/home/user/.kube
-      - .meta/.tflint.hcl:/home/user/.tflint.hcl
-      - .meta/var/zsh:/home/user/.zsh_tmp
-      - .meta/var/jump:/home/user/.jump
+      - .ws/.meta/var/op:/home/user/.config/op
+      - .ws/.meta/var/kube:/home/user/.kube
+      - .ws/.meta/.tflint.hcl:/home/user/.tflint.hcl
+      - .ws/.meta/var/zsh:/home/user/.zsh_tmp
+      - .ws/.meta/var/jump:/home/user/.jump
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env

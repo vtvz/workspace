@@ -36,7 +36,7 @@ ws-build-dotenv:
   {{ this }} _ws-gomplate "-f .ws/.meta/tmpl/.env.tmpl -o .ws.env"
 
 @compose *args:
-  COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose -f .ws.docker-compose.yml {{ args }}
+  COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}
 
 validate:
   {{ this }} _build-dockerfile
@@ -62,8 +62,8 @@ profiles:
 @_ws-gomplate args:
   docker run --rm -v "{{ justfile_directory() }}:/src" -w /src -u $(id -u) hairyhenderson/gomplate:stable-alpine \
     -d global=.ws/config.yaml \
-    $(test -e .ws.config.local.yaml && echo "-d local=.ws.config.local.yaml") \
-    $(test -e .ws.config.local.yaml || echo "-d local=.ws/config.yaml") \
+    $(test -e .ws.config.yaml && echo "-d local=.ws.config.yaml") \
+    $(test -e .ws.config.yaml || echo "-d local=.ws/config.yaml") \
     -c "config=merge:local|global" \
     {{ args }}
 

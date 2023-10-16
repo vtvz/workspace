@@ -21,7 +21,6 @@
 {{ $sops := index $github "getsops/sops" -}}
 {{ $drone := index $github "harness/drone-cli" -}}
 {{ $gitleaks := index $github "gitleaks/gitleaks" -}}
-{{ $neovim := index $github "neovim/neovim" -}}
 {{ $fzf := index $github "junegunn/fzf" -}}
 {{ $crossplane := index $github "crossplane/crossplane" -}}
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
@@ -40,6 +39,7 @@
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
 {{ $awscli := index .config.tools "aws/aws-cli" -}}
 {{ $gcloud := index .config.tools "GoogleCloudPlatform/cloud-sdk-docker" -}}
+{{ $neovim := index .config.tools "neovim/neovim" -}}
 
 {{ define "apt-get install" }}
 # hadolint ignore=DL3008

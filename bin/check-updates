@@ -26,7 +26,7 @@ function check {
     available=$((available + 1))
 
     if [[ -f .ws.config.yaml && $action == "apply" ]]; then
-      sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws.config.yaml
+      sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws/config.yaml
       applied=$((applied + 1))
     fi
   else
@@ -61,7 +61,7 @@ for component in $(echo "$GITHUB_VERSIONS" | jq -cM 'to_entries | .[]'); do
 done
 
 for component in $(echo "$PIP_VERSIONS" | jq -cM 'to_entries | .[]'); do
-  repo=$(urlencode "$(echo "$component" | jq -r '.key')")
+  repo=$(urlencode "$(echo "$component" | jq -r '.key' | sed 's/\[.*\]//')")
   current=$(echo "$component" | jq -r '.value')
 
   set +e
@@ -74,15 +74,22 @@ for component in $(echo "$PIP_VERSIONS" | jq -cM 'to_entries | .[]'); do
   fi
 done
 
+#neovim
+current=$(nvim -v | head -n1 | sed -E 's/^.*v//')
+latest=$(curl -sf --show-error https://raw.githubusercontent.com/neovim/neovim/stable/runtime/nvim.appdata.xml | grep '<release ' | head -n1 | sed -E 's/^.*version="(\S*)".*$/\1/')
+check "neovim/neovim" "$current" "$latest"
+
 # kubectl
-current=$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion' | sed 's/^v*//g')
-latest=$(curl -sf --show-error https://storage.googleapis.com/kubernetes-release/release/stable.txt | sed 's/^v*//g')
-check "kubernetes/kubectl" "$current" "$latest"
+if command -v kubectl &>/dev/null; then
+  current=$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion' | sed 's/^v*//g')
+  latest=$(curl -sf --show-error https://storage.googleapis.com/kubernetes-release/release/stable.txt | sed 's/^v*//g')
+  check "kubernetes/kubectl" "$current" "$latest"
+fi
 
 # golang
 if [[ -n $GOLANG_VERSION ]]; then
   current=$GOLANG_VERSION
-  latest=$(curl -sf --show-error "https://go.dev/VERSION?m=text" | sed 's/^go//g')
+  latest=$(curl -sf --show-error "https://go.dev/VERSION?m=text" | head -n1 | sed 's/^go//g')
   check "golang/go" "$current" "$latest"
 fi
 

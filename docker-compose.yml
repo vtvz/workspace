@@ -11,7 +11,7 @@ services:
       - ~/.ssh:/home/user/.ssh
       - .ws/var/op:/home/user/.config/op
       - .ws/var/kube:/home/user/.kube
-      - .ws/meta/.tflint.hcl:/home/user/.tflint.hcl
+      - .ws/tools/.tflint.hcl:/home/user/.tflint.hcl
       - .ws/var/zsh:/home/user/.zsh_tmp
       - .ws/var/jump:/home/user/.jump
       - /var/run/docker.sock:/var/run/docker.sock

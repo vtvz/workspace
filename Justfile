@@ -73,7 +73,7 @@ ws-install:
   {{ this }} ws-init
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   touch {{ file_name(justfile_directory()) }}
-  cp -f {{ justfile_directory() }}/.ws/meta/.tflint.hcl ~/.tflint.hcl
+  cp -f {{ justfile_directory() }}/.ws/tools/.tflint.hcl ~/.tflint.hcl
   git config core.excludesFile .ws/project.gitignore
 
 # Pull changes and rebuild

@@ -79,8 +79,9 @@ ws-install:
 # Pull changes and rebuild
 ws-update:
   #!/bin/bash -eu
-  cd $(dirname $(readlink -f {{ quote(justfile()) }}))
+  cd .ws
   set -x
   git pull origin master
+  cd ..
   {{ just }} ws-install
   {{ this }} ws-build

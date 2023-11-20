@@ -1,6 +1,5 @@
 set dotenv-load := false
 
-
 container := "workspace"
 workdir := "/workspace"
 just := quote(just_executable())
@@ -27,7 +26,7 @@ ws-build prebuild='false':
     | grep -P "^FROM .* as .*" \
     | sed 's/FROM .* as //' \
     | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/var/Dockerfile --target {} .
-  {{ this }} compose build
+  {{ this }} ws-compose build
 
 @_ws-build-dockerfile:
   {{ this }} _ws-gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"
@@ -35,20 +34,20 @@ ws-build prebuild='false':
 ws-build-dotenv:
   {{ this }} _ws-gomplate "-f .ws/templates/.env.tmpl -o .ws.env"
 
-@compose *args:
+@ws-compose *args:
   COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}
 
-validate:
+ws-validate:
   {{ this }} _build-dockerfile
-  cat .ws/var/Dockerfile | {{ this }} compose run --rm -T {{ container }} hadolint -
-  {{ this }} compose run --rm {{ container }} pre-commit run
+  cat .ws/var/Dockerfile | {{ this }} ws-compose run --rm -T {{ container }} hadolint -
+  {{ this }} ws-compose run --rm {{ container }} pre-commit run
 
 # Run zsh terminal inside container
-shell:
-  @{{ this }} compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
+ws-shell:
+  @{{ this }} ws-compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
 
 # Switch to AWS profile using aws-vault
-profile profile="" +cmd="$SHELL":
+ws-profile profile="" +cmd="$SHELL":
   #!/bin/bash -eu
   exec {lock_fd}>/tmp/{{ file_name(invocation_directory()) }}.lock
   flock -x "$lock_fd"
@@ -56,7 +55,11 @@ profile profile="" +cmd="$SHELL":
   aws-vault exec --duration=8h \
     $({{ if profile != "" { "echo " + quote(profile) } else { this + " _ws-gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
-profiles:
+# Run zsh in AWS profile
+ws-psh profile="":
+  {{ this }} ws-profile {{ quote(profile) }} {{ this }} ws-shell
+
+ws-profiles:
   {{ this + " _ws-gomplate \"-i '{{ .config.awsVaultProfiles | toJSON }}' --exec-pipe -- tr -d '\r'\"" }}
 
 @_ws-gomplate args:

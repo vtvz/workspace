@@ -203,7 +203,7 @@ FROM core as age
 RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v{{ $age }}/age-v{{ $age }}-linux-amd64.tar.gz" | tar zx \
     && mv age/age age/age-keygen /tmp
 
-{{ if $gcloud -}}
+{{ if .config.tools.enabled.gcp -}}
 FROM core as gcloud
 # hadolint ignore=DL3003,DL4006
 RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
@@ -232,7 +232,7 @@ RUN pip3 install --break-system-packages --no-cache-dir \
 {{ $p }}=={{ $v }} \
     {{ end }};
 
-{{ if $gcloud -}}
+{{ if .config.tools.enabled.gcp -}}
 #gcloud
 
 COPY --from=gcloud /opt/google-cloud-sdk /opt/google-cloud-sdk
@@ -352,7 +352,7 @@ RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.ws/tools/direnv"
 ENV STARSHIP_CONFIG="$workdir/.ws/tools/starship/config.toml"
-{{- if $gcloud }}
+{{ if .config.tools.enabled.gcp -}}
 ENV CLOUDSDK_CONFIG="$workdir/.ws/var/gcloud"
 {{- end }}
 ENV TF_PLUGIN_CACHE_DIR="$workdir/.ws/var/tf/plugin-cache"

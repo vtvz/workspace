@@ -75,7 +75,7 @@ ws-install:
   @[ ! -L "{{ justfile_directory() }}/.ws" ] || (echo "Should be ran in the project itself" && false)
   {{ this }} ws-init
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
-  touch {{ file_name(justfile_directory()) }}
+  touch {{ justfile_directory() }}/.env
   cp -f {{ justfile_directory() }}/.ws/tools/.tflint.hcl ~/.tflint.hcl
   git config core.excludesFile .ws/project.gitignore
 

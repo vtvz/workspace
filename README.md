@@ -19,9 +19,7 @@ export JUST_UNSTABLE=true
 ### Add this to your Justfile
 
 ```justfile
-!include .ws/Justfile
-
-set positional-arguments
+mod? ws '.ws/Justfile'
 ```
 
 ### Run these commands
@@ -29,8 +27,9 @@ set positional-arguments
 ```shell
 git clone git@github.com:vtvz/workspace.git .ws
 # git clone https://github.com/vtvz/workspace.git .ws
-just ws-install
-just ws-build
-just profile [your aws-vault profile name] #optional
-just shell
+just ws install
+just ws build
+just ws profile [your aws-vault profile name] #optional
+just ws shell
+just ws psh [your aws-vault profile name] #optional
 ```

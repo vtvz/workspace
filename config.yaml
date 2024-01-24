@@ -12,7 +12,7 @@ tools:
   golang/go: 1.21.6
   kubernetes/kubectl: 1.28.2
   1password: 1.12.7
-  aws/aws-cli: 2.15.10
+  aws/aws-cli: 2.15.13
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
@@ -28,20 +28,20 @@ tools:
   github:
     golangci/golangci-lint: 1.55.2
 
-    hashicorp/terraform: 1.6.6
-    gruntwork-io/terragrunt: 0.54.17
-    terraform-linters/tflint: 0.50.1
+    hashicorp/terraform: 1.7.1
+    gruntwork-io/terragrunt: 0.54.22
+    terraform-linters/tflint: 0.50.2
     terraform-linters/tflint-ruleset-aws: 0.29.0
-    aquasecurity/tfsec: 1.28.4
+    aquasecurity/tfsec: 1.28.5
     tenable/terrascan: 1.18.11
     terraform-docs/terraform-docs: 0.17.0
     plumber-cd/terraform-backend-git: 0.1.6
 
-    helm/helm: 3.13.3
+    helm/helm: 3.14.0
     roboll/helmfile: 0.144.0
-    databus23/helm-diff: 3.9.1
+    databus23/helm-diff: 3.9.2
     ahmetb/kubectx: 0.9.5
-    argoproj/argo-cd: 2.9.3
+    argoproj/argo-cd: 2.8.9
     crossplane/crossplane: 1.14.5
     ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
@@ -54,13 +54,13 @@ tools:
     casey/just: 1.23.0
     direnv/direnv: 2.33.0
     starship/starship: 1.17.1
-    AstroNvim/AstroNvim: 3.41.1
-    junegunn/fzf: 0.45.0
+    AstroNvim/AstroNvim: 3.42.0
+    junegunn/fzf: 0.46.0
     gsamokovarov/jump: 0.51.0
 
     getsops/sops: 3.8.1
     FiloSottile/age: 1.1.1
-    harness/drone-cli: 1.7.0
+    harness/drone-cli: 1.8.0
     hashicorp/vault: 1.15.4
 
   pip:
@@ -68,7 +68,7 @@ tools:
     yamllint: 1.33.0
     ansible: 9.1.0
     hvac: 2.1.0
-    ansible-lint: 6.22.1
+    ansible-lint: 6.22.2
     passlib[bcrypt]: 1.7.4
 
 dotenv:

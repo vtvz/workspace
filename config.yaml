@@ -25,6 +25,10 @@ tools:
     gcp: false
     kubernetes: false
 
+  packer:
+    plugins:
+      - "github.com/hashicorp/amazon"
+
   github:
     golangci/golangci-lint: 1.55.2
 
@@ -36,6 +40,7 @@ tools:
     tenable/terrascan: 1.18.11
     terraform-docs/terraform-docs: 0.17.0
     plumber-cd/terraform-backend-git: 0.1.6
+    hashicorp/packer: 1.10.0
 
     helm/helm: 3.14.0
     roboll/helmfile: 0.144.0

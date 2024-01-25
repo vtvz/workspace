@@ -3,6 +3,7 @@
 {{ $github := .config.tools.github -}}
 {{ $golangci_lint := index $github "golangci/golangci-lint" -}}
 {{ $terraform := index $github "hashicorp/terraform" -}}
+{{ $packer := index $github "hashicorp/packer" -}}
 {{ $terragrunt := index $github "gruntwork-io/terragrunt" -}}
 {{ $tflint := index $github "terraform-linters/tflint" -}}
 {{ $tflint_aws := index $github "terraform-linters/tflint-ruleset-aws" -}}
@@ -261,6 +262,7 @@ ENV TFLINT_PLUGIN_DIR /etc/tflint.d/plugins
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
 
 COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/terraform
+COPY --from=hashicorp/packer:{{ $packer }} /bin/packer /usr/local/bin/packer
 COPY --from=terragrunt /tmp/terragrunt /usr/local/bin/terragrunt
 COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
@@ -298,6 +300,10 @@ COPY --from=jump /tmp/jump /usr/local/bin/jump
 COPY --from=neovim /opt/nvim-linux64 /opt/neovim
 
 RUN ln -s /opt/neovim/bin/nvim /usr/local/bin/nvim
+
+{{ range $plugin := .config.tools.packer.plugins -}}
+RUN packer plugins install "{{ $plugin }}"
+{{ end -}}
 
 ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 

@@ -17,6 +17,7 @@
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
 {{ $argocd := index $github "argoproj/argo-cd" -}}
 {{ $just := index $github "casey/just" -}}
+{{ $taskfile := index $github "go-task/task" -}}
 {{ $direnv := index $github "direnv/direnv" -}}
 {{ $starship := index $github "starship/starship" -}}
 {{ $sops := index $github "getsops/sops" -}}
@@ -99,6 +100,10 @@ RUN curl -fL https://github.com/tenable/terrascan/releases/download/v{{ $terrasc
 FROM core as just
 # hadolint ignore=DL4006
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /tmp/ --tag {{ $just }}
+
+FROM core as taskfile
+# hadolint ignore=DL4006
+RUN curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/install-task.sh | bash -s -- -b /tmp/ v{{ $taskfile }}
 
 FROM core as direnv
 RUN curl -fL https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/direnv.linux-amd64 -o /tmp/direnv \
@@ -270,6 +275,7 @@ COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec
 COPY --from=terraform_docs /tmp/terraform-docs /usr/local/bin/terraform-docs
 COPY --from=terrascan /tmp/terrascan /usr/local/bin/terrascan
 COPY --from=just /tmp/just /usr/local/bin/just
+COPY --from=taskfile /tmp/task /usr/local/bin/task
 COPY --from=direnv /tmp/direnv /usr/local/bin/direnv
 COPY --from=op /tmp/op /usr/local/bin/op
 COPY --from=sops /tmp/sops /usr/local/bin/sops

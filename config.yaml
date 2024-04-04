@@ -9,10 +9,10 @@ image: golang:{{ .version }}
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
-  golang/go: 1.21.6
+  golang/go: 1.22.2
   kubernetes/kubectl: 1.28.2
-  1password: 1.12.7
-  aws/aws-cli: 2.15.16
+  1password: 1.12.8
+  aws/aws-cli: 2.15.35
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
@@ -30,24 +30,24 @@ tools:
       - "github.com/hashicorp/amazon"
 
   github:
-    golangci/golangci-lint: 1.55.2
+    golangci/golangci-lint: 1.57.2
 
-    hashicorp/terraform: 1.7.2
-    gruntwork-io/terragrunt: 0.54.22
-    terraform-linters/tflint: 0.50.2
-    terraform-linters/tflint-ruleset-aws: 0.29.0
+    hashicorp/terraform: 1.7.5
+    gruntwork-io/terragrunt: 0.55.21
+    terraform-linters/tflint: 0.50.3
+    terraform-linters/tflint-ruleset-aws: 0.30.0
     aquasecurity/tfsec: 1.28.5
-    tenable/terrascan: 1.18.11
+    tenable/terrascan: 1.19.1
     terraform-docs/terraform-docs: 0.17.0
     plumber-cd/terraform-backend-git: 0.1.6
-    hashicorp/packer: 1.10.1
+    hashicorp/packer: 1.10.2
 
-    helm/helm: 3.14.0
+    helm/helm: 3.14.3
     roboll/helmfile: 0.144.0
-    databus23/helm-diff: 3.9.4
+    databus23/helm-diff: 3.9.5
     ahmetb/kubectx: 0.9.5
-    argoproj/argo-cd: 2.8.9
-    crossplane/crossplane: 1.14.5
+    argoproj/argo-cd: 2.10.5
+    crossplane/crossplane: 1.15.1
     ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.3
@@ -56,24 +56,25 @@ tools:
     hadolint/hadolint: 2.12.0
     gitleaks/gitleaks: 8.18.2
 
-    casey/just: 1.23.0
-    direnv/direnv: 2.33.0
-    starship/starship: 1.17.1
-    AstroNvim/AstroNvim: 3.42.2
-    junegunn/fzf: 0.46.1
+    go-task/task: 3.35.1
+    casey/just: 1.25.2
+    direnv/direnv: 2.34.0
+    starship/starship: 1.18.2
+    AstroNvim/AstroNvim: 4.1.5
+    junegunn/fzf: 0.48.1
     gsamokovarov/jump: 0.51.0
 
     getsops/sops: 3.8.1
     FiloSottile/age: 1.1.1
     harness/drone-cli: 1.8.0
-    hashicorp/vault: 1.15.5
+    hashicorp/vault: 1.16.1
 
   pip:
-    pre-commit: 3.6.0
-    yamllint: 1.33.0
-    ansible: 9.2.0
+    pre-commit: 3.7.0
+    yamllint: 1.35.1
+    ansible: 9.4.0
     hvac: 2.1.0
-    ansible-lint: 6.22.2
+    ansible-lint: 24.2.1
     passlib[bcrypt]: 1.7.4
 
 dotenv:

@@ -327,7 +327,8 @@ RUN just --completions zsh > "$completion/_just.zsh" \
     && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
     && mkdir -p /usr/share/fzf/ \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
-    && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh"
+    && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh" \
+    && curl -fsL "https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/completion/zsh/_task" -o "/usr/local/share/zsh/site-functions/_task"
 
 ARG home="/home/user"
 RUN adduser --home "$home" --shell /bin/usr/zsh --uid 1000 --disabled-password {{ .config.username }} \

@@ -86,13 +86,6 @@ if command -v kubectl &>/dev/null; then
   check "kubernetes/kubectl" "$current" "$latest"
 fi
 
-# golang
-if [[ -n $GOLANG_VERSION ]]; then
-  current=$GOLANG_VERSION
-  latest=$(curl -sf --show-error "https://go.dev/VERSION?m=text" | head -n1 | sed 's/^go//g')
-  check "golang/go" "$current" "$latest"
-fi
-
 #awscli
 current=$AWS_CLI_VERSION
 latest=$(github "aws/aws-cli" "tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')

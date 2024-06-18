@@ -1,7 +1,4 @@
-{{ $golang := index .config.tools "golang/go" -}}
-
 {{ $github := .config.tools.github -}}
-{{ $golangci_lint := index $github "golangci/golangci-lint" -}}
 {{ $terraform := index $github "hashicorp/terraform" -}}
 {{ $packer := index $github "hashicorp/packer" -}}
 {{ $terragrunt := index $github "gruntwork-io/terragrunt" -}}
@@ -63,9 +60,9 @@ RUN apt-get update \
 }'
 {{- end }}
 
-FROM {{ tpl "image" .config.image (dict "version" $golang) }} as core
+FROM {{ .config.image }} as core
 
-{{ template "apt-get install" (slice "bash" "curl" "git" "openssh-client" "jq" "nano" "bash-completion" "unzip") }}
+{{ template "apt-get install" (slice "bash" "curl" "git" "openssh-client" "jq" "nano" "bash-completion" "unzip" "ca-certificates" "zsh") }}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -195,10 +192,6 @@ FROM core as gitleaks
 RUN curl -fL https://github.com/zricethezav/gitleaks/releases/download/v{{ $gitleaks }}/gitleaks_{{ $gitleaks }}_linux_x64.tar.gz | tar zx \
     && mv gitleaks /tmp
 
-FROM core as golangci_lint
-# hadolint ignore=DL4006
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/v{{ $golangci_lint }}/install.sh | sh -s -- -b /tmp v{{ $golangci_lint }}
-
 FROM core as terraform_backend_git
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64"  -o /tmp/terraform-backend-git \
@@ -229,7 +222,7 @@ RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ 
 
 FROM core as build
 
-{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff" "bash") }}
+{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff" "bash" "zsh") }}
 
 {{ template "apt-get install" .config.extraPackages }}
 
@@ -331,8 +324,8 @@ RUN just --completions zsh > "$completion/_just.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/completion/zsh/_task" -o "/usr/local/share/zsh/site-functions/_task"
 
 ARG home="/home/user"
-RUN adduser --home "$home" --shell /bin/usr/zsh --uid 1000 --disabled-password {{ .config.username }} \
-    && mkdir "$home/.config" && chown 1000:1000 "$home/.config"
+RUN usermod --home "$home" --shell /usr/bin/zsh --login {{ .config.username }} ubuntu \
+    && mkdir -p "$home/.config" && chown 1000:1000 -R "$home"
 
 USER 1000
 

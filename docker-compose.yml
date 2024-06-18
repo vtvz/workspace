@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   workspace:
     build:
@@ -28,6 +27,7 @@ services:
       AWS_SESSION_TOKEN: ${AWS_SESSION_TOKEN:-}
       AWS_SESSION_EXPIRATION: ${AWS_SESSION_EXPIRATION:-}
       AWS_SECURITY_TOKEN: ${AWS_SECURITY_TOKEN:-}
+      AWS_CREDENTIAL_EXPIRATION: ${AWS_CREDENTIAL_EXPIRATION:-}
       IN_DOCKER: "true"
       TERM: xterm-256color
     restart: "no"

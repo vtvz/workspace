@@ -11,7 +11,7 @@ image: ubuntu:24.04
 tools:
   kubernetes/kubectl: 1.28.2
   1password: 1.12.9
-  aws/aws-cli: 2.16.10
+  aws/aws-cli: 2.17.4
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
@@ -29,8 +29,8 @@ tools:
       - "github.com/hashicorp/amazon"
 
   github:
-    hashicorp/terraform: 1.8.5
-    gruntwork-io/terragrunt: 0.59.4
+    hashicorp/terraform: 1.9.0
+    gruntwork-io/terragrunt: 0.59.6
     terraform-linters/tflint: 0.51.1
     terraform-linters/tflint-ruleset-aws: 0.32.0
     aquasecurity/tfsec: 1.28.6
@@ -57,21 +57,21 @@ tools:
     casey/just: 1.29.1
     direnv/direnv: 2.34.0
     starship/starship: 1.19.0
-    AstroNvim/AstroNvim: 4.10.4
+    AstroNvim/AstroNvim: 4.14.0
     junegunn/fzf: 0.53.0
     gsamokovarov/jump: 0.51.0
 
-    getsops/sops: 3.8.1
+    getsops/sops: 3.9.0
     FiloSottile/age: 1.2.0
     harness/drone-cli: 1.8.0
-    hashicorp/vault: 1.17.0
+    hashicorp/vault: 1.17.1
 
   pip:
     pre-commit: 3.7.1
     yamllint: 1.35.1
     ansible: 10.1.0
-    hvac: 2.2.0
-    ansible-lint: 24.6.0
+    hvac: 2.3.0
+    ansible-lint: 24.6.1
     passlib[bcrypt]: 1.7.4
 
 dotenv:

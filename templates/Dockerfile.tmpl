@@ -61,7 +61,7 @@ RUN apt-get update \
 }'
 {{- end }}
 
-FROM {{ .config.image }} as core
+FROM {{ .config.image }} AS core
 
 {{ template "apt-get install" (slice "bash" "curl" "git" "openssh-client" "jq" "nano" "bash-completion" "unzip" "ca-certificates" "zsh") }}
 
@@ -69,152 +69,152 @@ SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
 ENV EDITOR nano
 
-FROM core as terragrunt
+FROM core AS terragrunt
 RUN curl -fL https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
     && chmod +x /tmp/terragrunt
 
-FROM core as tflint
+FROM core AS tflint
 RUN curl -fL https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip -o /tmp/tflint.zip \
     && unzip /tmp/tflint.zip -d /tmp/ && rm /tmp/tflint.zip
 
-FROM core as tflint_aws
+FROM core AS tflint_aws
 RUN curl -fL https://github.com/terraform-linters/tflint-ruleset-aws/releases/download/v{{ $tflint_aws }}/tflint-ruleset-aws_linux_amd64.zip -o /tmp/tflint-ruleset-aws.zip \
     && unzip /tmp/tflint-ruleset-aws.zip -d /tmp/ && rm /tmp/tflint-ruleset-aws.zip
 
-FROM core as tfsec
+FROM core AS tfsec
 RUN curl -fL https://github.com/aquasecurity/tfsec/releases/download/v{{ $tfsec }}/tfsec-linux-amd64 -o /tmp/tfsec \
     && chmod +x /tmp/tfsec
 
-FROM core as terraform_docs
+FROM core AS terraform_docs
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64.tar.gz | tar zx \
     && mv terraform-docs /tmp
 
-FROM core as terraformer
+FROM core AS terraformer
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/GoogleCloudPlatform/terraformer/releases/download/{{ $terraformer }}/terraformer-all-linux-amd64 -o /tmp/terraformer \
     && chmod +x /tmp/terraformer
 
-FROM core as terrascan
+FROM core AS terrascan
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/tenable/terrascan/releases/download/v{{ $terrascan }}/terrascan_{{ $terrascan }}_Linux_x86_64.tar.gz | tar zx \
     && mv terrascan /tmp
 
-FROM core as just
+FROM core AS just
 # hadolint ignore=DL4006
 RUN curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to /tmp/ --tag {{ $just }}
 
-FROM core as taskfile
+FROM core AS taskfile
 # hadolint ignore=DL4006
 RUN curl --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/install-task.sh | bash -s -- -b /tmp/ v{{ $taskfile }}
 
-FROM core as direnv
+FROM core AS direnv
 RUN curl -fL https://github.com/direnv/direnv/releases/download/v{{ $direnv }}/direnv.linux-amd64 -o /tmp/direnv \
     && chmod +x /tmp/direnv
 
-FROM core as fzf
+FROM core AS fzf
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/junegunn/fzf/releases/download/{{ $fzf }}/fzf-{{ $fzf }}-linux_amd64.tar.gz | tar zx \
     && mv fzf /tmp
 
-FROM core as hadolint
+FROM core AS hadolint
 RUN curl -fL https://github.com/hadolint/hadolint/releases/download/v{{ $hadolint }}/hadolint-Linux-x86_64 -o /tmp/hadolint \
     && chmod +x /tmp/hadolint
 
-FROM core as jump
+FROM core AS jump
 RUN curl -fL https://github.com/gsamokovarov/jump/releases/download/v{{ $jump }}/jump_linux_amd64_binary -o /tmp/jump \
     && chmod +x /tmp/jump
 
-FROM core as op
+FROM core AS op
 RUN curl -fL https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd64_v{{ $op }}.zip -o /tmp/op.zip \
     && unzip /tmp/op.zip -d /tmp/ && rm /tmp/op.zip
 
 {{ if .config.tools.enabled.kubernetes -}}
-FROM core as kubectl
+FROM core AS kubectl
 RUN curl -fL https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
 
-FROM core as helm
+FROM core AS helm
 # hadolint ignore=DL4006
 RUN curl -fL https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz | tar zx \
     && mv linux-amd64/helm /tmp/helm
 
-FROM core as helmfile
+FROM core AS helmfile
 RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
     && chmod +x /tmp/helmfile
 
-FROM core as kubectx
+FROM core AS kubectx
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubectx_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubectx /tmp
 
-FROM core as kubens
+FROM core AS kubens
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/ahmetb/kubectx/releases/download/v{{ $kubectx }}/kubens_v{{ $kubectx }}_linux_x86_64.tar.gz | tar zx \
     && cp kubens /tmp
 
-FROM core as argocd
+FROM core AS argocd
 RUN curl -fL https://github.com/argoproj/argo-cd/releases/download/v{{ $argocd }}/argocd-linux-amd64 -o /tmp/argocd \
     && chmod +x /tmp/argocd
 
-FROM core as crossplane
+FROM core AS crossplane
 # hadolint ignore=DL4006
 RUN curl -fL https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank -o /tmp/kubectl-crossplane \
     && chmod +x /tmp/kubectl-crossplane
 
-FROM core as kubectl_tree
+FROM core AS kubectl_tree
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/ahmetb/kubectl-tree/releases/download/v{{ $kubectl_tree }}/kubectl-tree_v{{ $kubectl_tree }}_linux_amd64.tar.gz" | tar zx \
     && mv kubectl-tree /tmp
 
-FROM core as kube_lineage
+FROM core AS kube_lineage
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/tohjustin/kube-lineage/releases/download/v{{ $kube_lineage }}/kube-lineage_linux_amd64.tar.gz" | tar zx \
     && mv kube-lineage /tmp
 
-FROM core as kubectl_neat
+FROM core AS kubectl_neat
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/itaysk/kubectl-neat/releases/download/v{{ $kubectl_neat }}/kubectl-neat_linux_amd64.tar.gz" | tar zx \
     && mv kubectl-neat /tmp
 
-FROM core as ketall
+FROM core AS ketall
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ketall }}/ketall-amd64-linux.tar.gz" | tar zx \
     && mv ketall-amd64-linux /tmp/ketall
 
 {{- end }}
 
-FROM core as drone
+FROM core AS drone
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/harness/drone-cli/releases/download/v{{ $drone }}/drone_linux_amd64.tar.gz | tar zx \
     && cp drone /tmp
 
-FROM core as sops
+FROM core AS sops
 RUN curl -fL https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux.amd64  -o /tmp/sops \
     && chmod +x /tmp/sops
 
-FROM core as gitleaks
+FROM core AS gitleaks
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/zricethezav/gitleaks/releases/download/v{{ $gitleaks }}/gitleaks_{{ $gitleaks }}_linux_x64.tar.gz | tar zx \
     && mv gitleaks /tmp
 
-FROM core as terraform_backend_git
+FROM core AS terraform_backend_git
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64"  -o /tmp/terraform-backend-git \
     && chmod +x /tmp/terraform-backend-git
 
-FROM core as age
+FROM core AS age
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/FiloSottile/age/releases/download/v{{ $age }}/age-v{{ $age }}-linux-amd64.tar.gz" | tar zx \
     && mv age/age age/age-keygen /tmp
 
 {{ if .config.tools.enabled.gcp -}}
-FROM core as gcloud
+FROM core AS gcloud
 # hadolint ignore=DL3003,DL4006
 RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-{{ $gcloud }}-linux-x86_64.tar.gz" | tar zx
 {{- end }}
 
-FROM core as awscliv2
+FROM core AS awscliv2
 RUN tmp="$(mktemp -d)" \
     && cd "$tmp" \
     && curl -Lf "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-{{ $awscli }}.zip" -o "awscliv2.zip" \
@@ -223,10 +223,10 @@ RUN tmp="$(mktemp -d)" \
     && (shopt -s dotglob && mv ./aws/* /tmp/awscliv2) \
     && rm -rf "$tmp"
 
-FROM core as neovim
+FROM core AS neovim
 RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" | tar zx
 
-FROM core as build
+FROM core AS build
 
 {{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff" "bash" "zsh") }}
 

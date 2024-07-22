@@ -33,6 +33,7 @@ tools:
     gruntwork-io/terragrunt: 0.59.6
     terraform-linters/tflint: 0.51.1
     terraform-linters/tflint-ruleset-aws: 0.32.0
+    GoogleCloudPlatform/terraformer: 0.8.24
     aquasecurity/tfsec: 1.28.6
     tenable/terrascan: 1.19.1
     terraform-docs/terraform-docs: 0.18.0

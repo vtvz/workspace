@@ -1,5 +1,6 @@
 {{ $github := .config.tools.github -}}
 {{ $terraform := index $github "hashicorp/terraform" -}}
+{{ $terraformer := index $github "GoogleCloudPlatform/terraformer" -}}
 {{ $packer := index $github "hashicorp/packer" -}}
 {{ $terragrunt := index $github "gruntwork-io/terragrunt" -}}
 {{ $tflint := index $github "terraform-linters/tflint" -}}
@@ -88,6 +89,11 @@ FROM core as terraform_docs
 # hadolint ignore=DL4006
 RUN curl -fL https://github.com/terraform-docs/terraform-docs/releases/download/v{{ $terraform_docs }}/terraform-docs-v{{ $terraform_docs }}-linux-amd64.tar.gz | tar zx \
     && mv terraform-docs /tmp
+
+FROM core as terraformer
+# hadolint ignore=DL4006
+RUN curl -fL https://github.com/GoogleCloudPlatform/terraformer/releases/download/{{ $terraformer }}/terraformer-all-linux-amd64 -o /tmp/terraformer \
+    && chmod +x /tmp/terraformer
 
 FROM core as terrascan
 # hadolint ignore=DL4006
@@ -266,6 +272,7 @@ COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
 COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec
 COPY --from=terraform_docs /tmp/terraform-docs /usr/local/bin/terraform-docs
+COPY --from=terraformer /tmp/terraformer /usr/local/bin/terraformer
 COPY --from=terrascan /tmp/terrascan /usr/local/bin/terrascan
 COPY --from=just /tmp/just /usr/local/bin/just
 COPY --from=taskfile /tmp/task /usr/local/bin/task

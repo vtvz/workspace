@@ -19,10 +19,12 @@ tools:
   zsh-users/zsh-completions: 0.35.0
 
   neovim/neovim: 0.10.0
+  golang/go: 1.22.5
 
   enabled:
     gcp: false
     kubernetes: false
+    golang: false
 
   packer:
     plugins:

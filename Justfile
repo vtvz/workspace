@@ -26,14 +26,21 @@ git-cleanup:
 build prebuild='false':
   {{ this }} ws::build-dotenv
   {{ this }} ws::build-dockerfile
-  {{ if prebuild == 'false' { 'true' } else { 'false' } }} || cat .ws/var/Dockerfile \
-    | grep -P "^FROM .* as .*" \
-    | sed 's/FROM .* as //' \
-    | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/var/Dockerfile --target {} .
-  {{ this }} ws::compose build
+  if [[ {{ quote(prebuild) }} == "true" ]]; then \
+    cat .ws/var/Dockerfile \
+      | grep -P "^FROM .* AS .*" \
+      | sed 's/FROM .* AS //' \
+      | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/var/Dockerfile --target {} .; \
+  fi
+
+  if [[ {{ quote(prebuild) }} != "true" ]] || [[ {{ quote(prebuild) }} != "false" ]]; then \
+    DOCKER_BUILDKIT=1 docker build -t ws -f .ws/var/Dockerfile --target {{ prebuild }} .; \
+  else \
+    {{ this }} ws::compose build; \
+  fi
 
 [no-cd, private]
-@build-dockerfile:
+build-dockerfile:
   {{ this }} ws gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"
 
 [no-cd]

@@ -346,6 +346,8 @@ ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 
 ENV PIP_VERSIONS={{ template "json-map" .config.tools.pip }}
 
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v0.1.0-alpha.1721936029/gouda-installer.sh | sh
+
 {{ if .config.tools.enabled.kubernetes -}}
 RUN completion="/usr/share/zsh/functions/Completion" \
     && kubectl completion zsh > "$completion/_kubectl.zsh" \

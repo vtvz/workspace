@@ -34,7 +34,7 @@ build prebuild='false':
   fi
 
   if [[ {{ quote(prebuild) }} != "true" ]] || [[ {{ quote(prebuild) }} != "false" ]]; then \
-    DOCKER_BUILDKIT=1 docker build -t ws -f .ws/var/Dockerfile --target {{ prebuild }} .; \
+    DOCKER_BUILDKIT=1 docker build -t ws -f .ws/var/Dockerfile .; \
   else \
     {{ this }} ws::compose build; \
   fi

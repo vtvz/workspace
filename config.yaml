@@ -41,6 +41,7 @@ tools:
     terraform-docs/terraform-docs: 0.18.0
     plumber-cd/terraform-backend-git: 0.1.6
     hashicorp/packer: 1.11.1
+    getgrit/gritql: 0.1.0-alpha.1721936029
 
     helm/helm: 3.15.3
     roboll/helmfile: 0.144.0

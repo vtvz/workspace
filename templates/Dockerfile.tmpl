@@ -28,6 +28,7 @@
 {{ $vault := index $github "hashicorp/vault" -}}
 {{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
+{{ $gritql := index $github "getgrit/gritql" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -346,8 +347,6 @@ ENV GITHUB_VERSIONS={{ template "json-map" $github }}
 
 ENV PIP_VERSIONS={{ template "json-map" .config.tools.pip }}
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v0.1.0-alpha.1721936029/gouda-installer.sh | sh
-
 {{ if .config.tools.enabled.kubernetes -}}
 RUN completion="/usr/share/zsh/functions/Completion" \
     && kubectl completion zsh > "$completion/_kubectl.zsh" \
@@ -394,6 +393,8 @@ RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/
 # hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 {{- end }}
+
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v{{ $gritql }}/marzano-installer.sh | sh
 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"

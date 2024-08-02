@@ -74,3 +74,5 @@ bindkey '^K' ws-reset-widget
 if command -v jump &>/dev/null; then
   eval "$(jump shell)"
 fi
+
+. "$HOME/.grit/bin/env"

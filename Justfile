@@ -30,11 +30,11 @@ build prebuild='false':
     cat .ws/var/Dockerfile \
       | grep -P "^FROM .* AS .*" \
       | sed 's/FROM .* AS //' \
-      | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build -t ws -f .ws/var/Dockerfile --target {} .; \
+      | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build --progress plain -t ws -f .ws/var/Dockerfile --target {} .; \
   fi
 
   if [[ {{ quote(prebuild) }} != "true" ]] || [[ {{ quote(prebuild) }} != "false" ]]; then \
-    DOCKER_BUILDKIT=1 docker build -t ws -f .ws/var/Dockerfile .; \
+    DOCKER_BUILDKIT=1 docker build --progress plain -t ws -f .ws/var/Dockerfile .; \
   else \
     {{ this }} ws::compose build; \
   fi
@@ -56,6 +56,8 @@ validate:
   {{ this }} ws::build-dockerfile
   -cat .ws/var/Dockerfile | {{ this }} ws::compose run --rm -T {{ container }} hadolint -
   -{{ this }} ws::compose run --rm {{ container }} pre-commit run
+
+alias sh := shell
 
 # Run zsh terminal inside container
 [no-cd]

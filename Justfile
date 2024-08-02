@@ -33,8 +33,8 @@ build prebuild='false':
       | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build --progress plain -t ws -f .ws/var/Dockerfile --target {} .; \
   fi
 
-  if [[ {{ quote(prebuild) }} != "true" ]] || [[ {{ quote(prebuild) }} != "false" ]]; then \
-    DOCKER_BUILDKIT=1 docker build --progress plain -t ws -f .ws/var/Dockerfile .; \
+  if [[ {{ quote(prebuild) }} != "true" ]] && [[ {{ quote(prebuild) }} != "false" ]]; then \
+    DOCKER_BUILDKIT=1 docker build --progress plain -t ws -f .ws/var/Dockerfile . --target {{ prebuild }}; \
   else \
     {{ this }} ws::compose build; \
   fi

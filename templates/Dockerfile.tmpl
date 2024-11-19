@@ -394,7 +394,7 @@ RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 {{- end }}
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v{{ $gritql }}/marzano-installer.sh | sh
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"

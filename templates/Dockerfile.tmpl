@@ -186,6 +186,7 @@ RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ket
 FROM core AS golang
 RUN curl -fL https://go.dev/dl/go{{ $golang }}.linux-amd64.tar.gz -o /tmp/golang-package.tar.gz
 
+{{ if .config.tools.enabled.terraformer -}}
 FROM core AS terraformer
 RUN --mount=type=bind,from=golang,source=/tmp/golang-package.tar.gz,target=/tmp/golang-package.tar.gz \
     --mount=type=cache,target=/gomod-cache --mount=type=cache,target=/go-cache \
@@ -200,12 +201,17 @@ RUN --mount=type=bind,from=golang,source=/tmp/golang-package.tar.gz,target=/tmp/
     && CGO_ENABLED=0 /usr/local/go/bin/go build -v \
     && mv terraformer /tmp/terraformer \
     && rm -rf /tmp/terraformer-git /usr/local/go
+{{- end }}
 
 {{ else }}
+
+{{ if .config.tools.enabled.terraformer -}}
 FROM core AS terraformer
 #hadolint ignore=DL4006
 RUN curl -fL https://github.com/GoogleCloudPlatform/terraformer/releases/download/{{ $terraformer }}/terraformer-all-linux-amd64 -o /tmp/terraformer \
     && chmod +x /tmp/terraformer
+{{- end }}
+
 {{- end }}
 
 FROM core AS drone
@@ -297,7 +303,9 @@ COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
 COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec
 COPY --from=terraform_docs /tmp/terraform-docs /usr/local/bin/terraform-docs
+{{ if .config.tools.enabled.terraformer -}}
 COPY --from=terraformer /tmp/terraformer /usr/local/bin/terraformer
+{{- end }}
 COPY --from=terrascan /tmp/terrascan /usr/local/bin/terrascan
 COPY --from=just /tmp/just /usr/local/bin/just
 COPY --from=taskfile /tmp/task /usr/local/bin/task

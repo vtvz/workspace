@@ -25,6 +25,7 @@ tools:
     gcp: false
     kubernetes: false
     golang: false
+    terraformer: false
 
   packer:
     plugins:

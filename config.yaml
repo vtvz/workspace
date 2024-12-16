@@ -11,7 +11,7 @@ image: ubuntu:24.04
 tools:
   kubernetes/kubectl: 1.28.2
   1password: 1.12.9
-  aws/aws-cli: 2.22.0
+  aws/aws-cli: 2.22.17
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
@@ -32,24 +32,24 @@ tools:
       - "github.com/hashicorp/amazon"
 
   github:
-    hashicorp/terraform: 1.9.8
-    gruntwork-io/terragrunt: 0.68.15
+    hashicorp/terraform: 1.10.2
+    gruntwork-io/terragrunt: 0.69.13
     terraform-linters/tflint: 0.54.0
-    terraform-linters/tflint-ruleset-aws: 0.35.0
+    terraform-linters/tflint-ruleset-aws: 0.36.0
     GoogleCloudPlatform/terraformer: 0.8.24
     aquasecurity/tfsec: 1.28.11
     tenable/terrascan: 1.19.9
     terraform-docs/terraform-docs: 0.19.0
     plumber-cd/terraform-backend-git: 0.1.8
     hashicorp/packer: 1.11.2
-    getgrit/gritql: 0.1.0-alpha.1731963650
+    getgrit/gritql: 0.1.0-alpha.1734311808
 
     helm/helm: 3.16.3
     roboll/helmfile: 0.144.0
     databus23/helm-diff: 3.9.12
     ahmetb/kubectx: 0.9.5
-    argoproj/argo-cd: 2.13.0
-    crossplane/crossplane: 1.18.0
+    argoproj/argo-cd: 2.13.2
+    crossplane/crossplane: 1.18.1
     ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.4
@@ -58,25 +58,25 @@ tools:
     hadolint/hadolint: 2.12.0
     gitleaks/gitleaks: 8.21.2
 
-    go-task/task: 3.40.0
-    casey/just: 1.36.0
+    go-task/task: 3.40.1
+    casey/just: 1.38.0
     direnv/direnv: 2.35.0
     starship/starship: 1.21.1
-    AstroNvim/AstroNvim: 4.28.0
-    junegunn/fzf: 0.56.3
+    AstroNvim/AstroNvim: 4.29.0
+    junegunn/fzf: 0.57.0
     gsamokovarov/jump: 0.51.0
 
-    getsops/sops: 3.9.1
+    getsops/sops: 3.9.2
     FiloSottile/age: 1.2.0
     harness/drone-cli: 1.8.0
-    hashicorp/vault: 1.18.1
+    hashicorp/vault: 1.18.2
 
   pip:
     pre-commit: 4.0.1
     yamllint: 1.35.1
-    ansible: 10.6.0
+    ansible: 11.1.0
     hvac: 2.3.0
-    ansible-lint: 24.10.0
+    ansible-lint: 24.12.2
     passlib[bcrypt]: 1.7.4
 
 dotenv:

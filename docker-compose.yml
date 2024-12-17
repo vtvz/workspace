@@ -14,6 +14,7 @@ services:
       - .ws/var/zsh:/home/user/.zsh_tmp
       - .ws/var/jump:/home/user/.jump
       - .ws/var/packer:/home/user/.config/packer
+      - .ws/var/helm:/home/user/.cache/helm
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
       - .env

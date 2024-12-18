@@ -373,7 +373,7 @@ RUN just --completions zsh > "$completion/_just.zsh" \
 
 ARG home="/home/user"
 RUN usermod --home "$home" --shell /usr/bin/zsh --login {{ .config.username }} ubuntu \
-    && mkdir -p "$home/.config" && chown 1000:1000 -R "$home"
+    && mkdir -p "$home/.config" && mkdir -p "$home/.cache" && chown 1000:1000 -R "$home"
 
 USER 1000
 

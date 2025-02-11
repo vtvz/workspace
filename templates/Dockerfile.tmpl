@@ -254,7 +254,7 @@ RUN tmp="$(mktemp -d)" \
     && rm -rf "$tmp"
 
 FROM core AS neovim
-RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux64.tar.gz" | tar zx
+RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux-x86_64.tar.gz" | tar zx
 
 FROM core AS build
 
@@ -337,7 +337,7 @@ COPY --from=hashicorp/vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 {{ if $aws_nuke -}}
 {{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
-COPY --from=neovim /opt/nvim-linux64 /opt/neovim
+COPY --from=neovim /opt/nvim-linux-x86_64 /opt/neovim
 
 RUN ln -s /opt/neovim/bin/nvim /usr/local/bin/nvim
 

@@ -28,6 +28,7 @@
 {{ $vault := index $github "hashicorp/vault" -}}
 {{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
+{{ $yq := index $github "mikefarah/yq" -}}
 {{ $gritql := index $github "getgrit/gritql" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
@@ -181,6 +182,10 @@ RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ket
     && mv ketall-amd64-linux /tmp/ketall
 
 {{- end }}
+
+FROM core AS yq
+RUN curl -fL "https://github.com/mikefarah/yq/releases/download/v{{ $yq }}/yq_linux_amd64" -o /tmp/yq \
+    && chmod +x /tmp/yq
 
 {{ if .config.tools.enabled.golang -}}
 FROM core AS golang
@@ -337,6 +342,7 @@ COPY --from=hashicorp/vault:{{ $vault }} /bin/vault /usr/local/bin/vault
 {{ if $aws_nuke -}}
 {{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
+COPY --from=yq /tmp/yq /usr/local/bin/yq
 COPY --from=neovim /opt/nvim-linux-x86_64 /opt/neovim
 
 RUN ln -s /opt/neovim/bin/nvim /usr/local/bin/nvim

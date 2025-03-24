@@ -35,6 +35,7 @@
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
 {{ $kubectl_neat := index $github "itaysk/kubectl-neat" -}}
 {{ $ketall := index $github "corneliusweig/ketall" -}}
+{{ $eksctl := index $github "eksctl-io/eksctl" -}}
 {{ $astronvim := index $github "AstroNvim/AstroNvim" -}}
 
 {{ $op := index .config.tools "1password" -}}
@@ -180,6 +181,10 @@ FROM core AS ketall
 # hadolint ignore=DL4006
 RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ketall }}/ketall-amd64-linux.tar.gz" | tar zx \
     && mv ketall-amd64-linux /tmp/ketall
+
+FROM core AS eksctl
+RUN curl -fL "https://github.com/eksctl-io/eksctl/releases/download/v{{ $eksctl }}/eksctl_Linux_amd64.tar.gz" | tar zx \
+    && mv eksctl /tmp/eksctl
 
 {{- end }}
 
@@ -328,6 +333,7 @@ COPY --from=kubectl_tree /tmp/kubectl-tree /usr/local/bin/kubectl-tree
 COPY --from=kube_lineage /tmp/kube-lineage /usr/local/bin/kubectl-lineage
 COPY --from=kubectl_neat /tmp/kubectl-neat /usr/local/bin/kubectl-neat
 COPY --from=ketall /tmp/ketall /usr/local/bin/ketall
+COPY --from=eksctl /tmp/eksctl /usr/local/bin/eksctl
 COPY --from=crossplane /tmp/kubectl-crossplane /usr/local/bin/kubectl-crossplane
 # TODO: Removed for now
 # COPY --from=argocd /tmp/argocd /usr/local/bin/argocd

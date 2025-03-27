@@ -11,14 +11,14 @@ image: ubuntu:24.04
 tools:
   kubernetes/kubectl: 1.31.0
   1password: 1.12.9
-  aws/aws-cli: 2.25.1
+  aws/aws-cli: 2.25.4
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.8.0
   zsh-users/zsh-completions: 0.35.0
 
-  neovim/neovim: 0.10.4
+  neovim/neovim: 0.11.0
   golang/go: 1.23.3
 
   enabled:
@@ -32,24 +32,24 @@ tools:
       - "github.com/hashicorp/amazon"
 
   github:
-    hashicorp/terraform: 1.11.2
-    gruntwork-io/terragrunt: 0.76.6
+    hashicorp/terraform: 1.11.3
+    gruntwork-io/terragrunt: 0.76.8
     terraform-linters/tflint: 0.55.1
     terraform-linters/tflint-ruleset-aws: 0.38.0
-    GoogleCloudPlatform/terraformer: 0.8.24
+    GoogleCloudPlatform/terraformer: 0.8.30
     aquasecurity/tfsec: 1.28.13
     tenable/terrascan: 1.19.9
     terraform-docs/terraform-docs: 0.19.0
     plumber-cd/terraform-backend-git: 0.1.8
     hashicorp/packer: 1.12.0
-    getgrit/gritql: 0.1.0-alpha.1740749968
+    getgrit/gritql: 0.1.0-alpha.1743007075
 
     helm/helm: 3.17.2
     roboll/helmfile: 0.144.0
     databus23/helm-diff: 3.10.0
     ahmetb/kubectx: 0.9.5
-    argoproj/argo-cd: 2.14.7
-    crossplane/crossplane: 1.19.0
+    argoproj/argo-cd: 2.14.8
+    crossplane/crossplane: 1.19.1
     ahmetb/kubectl-tree: 0.4.3
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.4
@@ -63,7 +63,7 @@ tools:
     casey/just: 1.40.0
     direnv/direnv: 2.35.0
     starship/starship: 1.22.1
-    AstroNvim/AstroNvim: 4.32.3
+    AstroNvim/AstroNvim: 5.0.0
     junegunn/fzf: 0.60.3
     gsamokovarov/jump: 0.51.0
     mikefarah/yq: 4.45.1
@@ -76,7 +76,7 @@ tools:
   pip:
     pre-commit: 4.2.0
     yamllint: 1.37.0
-    ansible: 11.3.0
+    ansible: 11.4.0
     hvac: 2.3.0
     ansible-lint: 25.1.3
     passlib[bcrypt]: 1.7.4

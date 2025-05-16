@@ -76,3 +76,5 @@ if command -v jump &>/dev/null; then
 fi
 
 . "$HOME/.grit/bin/env"
+
+export KUBECONFIG="${HOME}/.kube/config-${AWS_VAULT}"

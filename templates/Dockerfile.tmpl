@@ -29,7 +29,7 @@
 {{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
 {{ $yq := index $github "mikefarah/yq" -}}
-{{ $gritql := index $github "getgrit/gritql" -}}
+{{ $gritql := index $github "honeycombio/gritql" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -383,6 +383,8 @@ RUN just --completions zsh > "$completion/_just.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/completion/zsh/_task" -o "/usr/local/share/zsh/site-functions/_task"
 
+RUN ln -s /usr/local/bin/kubectl /usr/local/bin/k
+
 ARG home="/home/user"
 RUN usermod --home "$home" --shell /usr/bin/zsh --login {{ .config.username }} ubuntu \
     && mkdir -p "$home/.config" && mkdir -p "$home/.cache" && chown 1000:1000 -R "$home"
@@ -415,7 +417,7 @@ RUN mv "$home/.zshrc" "$home/.zshrc_original" \
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
 {{- end }}
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/getgrit/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/honeycombio/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"

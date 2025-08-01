@@ -28,7 +28,7 @@ complete -o nospace -C /usr/local/bin/terraform terraform tf
 complete -C /usr/local/bin/aws_completer aws
 
 alias tf=terraform
-alias k=kubectl
+# alias k=kubectl
 compdef __start_kubectl k
 
 if [[ -n "$AWS_VAULT" ]]; then

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+kubectl run tmp-shell --restart=Never --rm -i --tty --image alpine -- /bin/sh

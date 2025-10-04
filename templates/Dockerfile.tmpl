@@ -30,6 +30,7 @@
 {{ $jump := index $github "gsamokovarov/jump" -}}
 {{ $yq := index $github "mikefarah/yq" -}}
 {{ $gritql := index $github "honeycombio/gritql" -}}
+{{ $lefthook := index $github "evilmartians/lefthook" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -76,6 +77,10 @@ ENV EDITOR nano
 FROM core AS terragrunt
 RUN curl -fL https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64 -o /tmp/terragrunt \
     && chmod +x /tmp/terragrunt
+
+FROM core AS lefthook
+RUN curl -fL https://github.com/evilmartians/lefthook/releases/download/v{{ $lefthook }}/lefthook_1.13.6_Linux_x86_64 -o /tmp/lefthook \
+    && chmod +x /tmp/lefthook
 
 FROM core AS tflint
 RUN curl -fL https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip -o /tmp/tflint.zip \
@@ -309,6 +314,7 @@ RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|
 COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/terraform
 COPY --from=hashicorp/packer:{{ $packer }} /bin/packer /usr/local/bin/packer
 COPY --from=terragrunt /tmp/terragrunt /usr/local/bin/terragrunt
+COPY --from=lefthook /tmp/lefthook /usr/local/bin/lefthook
 COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
 COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec

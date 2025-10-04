@@ -11,7 +11,7 @@ image: ubuntu:24.04
 tools:
   kubernetes/kubectl: 1.31.0
   1password: 1.12.9
-  aws/aws-cli: 2.31.6
+  aws/aws-cli: 2.31.8
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
 
   zsh-users/zsh-autosuggestions: 0.7.0
@@ -55,7 +55,7 @@ tools:
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.4
     corneliusweig/ketall: 1.3.8
-    eksctl-io/eksctl: 0.214.0
+    eksctl-io/eksctl: 0.215.0
 
     hadolint/hadolint: 2.14.0
     gitleaks/gitleaks: 8.28.0

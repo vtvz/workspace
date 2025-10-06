@@ -100,6 +100,17 @@ current=$AWS_CLI_VERSION
 latest=$(github "aws/aws-cli" "tags" | jq -r '[.[] | select( .name | test("^2")) | .name][0]')
 check "aws/aws-cli" "$current" "$latest"
 
+#parallel
+current=$PARALLEL_VERSION
+latest=$(
+  curl -fsSL "https://ftp.gnu.org/gnu/parallel/" |
+    grep -Eo 'parallel-[0-9]{8}\.tar\.bz2' |
+    sort -uV |
+    tail -1 |
+    grep -Eo '[0-9]{8}'
+)
+check "gnu/parallel" "$current" "$latest"
+
 #gcloud
 if [[ -n "${GCLOUD_CLI_VERSION:-}" ]]; then
   current=$GCLOUD_CLI_VERSION

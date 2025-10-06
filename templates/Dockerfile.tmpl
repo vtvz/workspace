@@ -45,6 +45,7 @@
 {{ $gcloud := index .config.tools "GoogleCloudPlatform/cloud-sdk-docker" -}}
 {{ $neovim := index .config.tools "neovim/neovim" -}}
 {{ $golang := index .config.tools "golang/go" -}}
+{{ $parallel := index .config.tools "gnu/parallel" -}}
 
 {{ define "apt-get install" }}
 # hadolint ignore=DL3008
@@ -68,7 +69,27 @@ RUN apt-get update \
 
 FROM {{ .config.image }} AS core
 
-{{ template "apt-get install" (slice "bash" "curl" "git" "openssh-client" "jq" "nano" "bash-completion" "unzip" "ca-certificates" "zsh") }}
+{{ template "apt-get install" (
+  slice
+    "autoconf"
+    "automake"
+    "bash"
+    "bash-completion"
+    "bsdmainutils"
+    "bzip2"
+    "ca-certificates"
+    "curl"
+    "git"
+    "jq"
+    "less"
+    "make"
+    "man"
+    "nano"
+    "openssh-client"
+    "unzip"
+    "zsh"
+  )
+}}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
 
@@ -268,12 +289,17 @@ RUN tmp="$(mktemp -d)" \
     && (shopt -s dotglob && mv ./aws/* /tmp/awscliv2) \
     && rm -rf "$tmp"
 
+FROM core AS parallel
+RUN cd "/tmp" \
+    && curl https://mirror.bahnhof.net/pub/gnu/parallel/parallel-{{ $parallel }}.tar.bz2 | tar xvj \
+    && mv parallel-{{ $parallel }} parallel
+
 FROM core AS neovim
 RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux-x86_64.tar.gz" | tar zx
 
 FROM core AS build
 
-{{ template "apt-get install" (slice "python3" "python3-pip" "less" "groff" "bash" "zsh") }}
+{{ template "apt-get install" (slice "python3" "python3-pip") }}
 
 {{ template "apt-get install" .config.extraPackages }}
 
@@ -302,7 +328,14 @@ RUN --mount=type=bind,from=awscliv2,source=/tmp/awscliv2,target=/tmp/awscliv2 /t
 
 ENV AWS_CLI_VERSION="{{ $awscli }}"
 
+RUN --mount=type=bind,from=parallel,source=/tmp/parallel,target=/tmp/parallel-ro cp -R /tmp/parallel-ro /tmp/parallel \
+    && cd /tmp/parallel \
+    && ./configure --prefix=/usr/local \
+    && make -j"$(nproc)" \
+    && make install \
+    && rm -rf /tmp/parallel
 
+ENV PARALLEL_VERSION="{{ $parallel }}"
 
 # hadolint ignore=DL3059
 RUN mkdir -p /etc/tflint.d/plugins

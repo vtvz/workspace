@@ -100,7 +100,7 @@ RUN curl -fL https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $t
     && chmod +x /tmp/terragrunt
 
 FROM core AS lefthook
-RUN curl -fL https://github.com/evilmartians/lefthook/releases/download/v{{ $lefthook }}/lefthook_1.13.6_Linux_x86_64 -o /tmp/lefthook \
+RUN curl -fL https://github.com/evilmartians/lefthook/releases/download/v{{ $lefthook }}/lefthook_{{ $lefthook }}_Linux_x86_64 -o /tmp/lefthook \
     && chmod +x /tmp/lefthook
 
 FROM core AS tflint
@@ -453,7 +453,7 @@ RUN mv "$home/.zshrc" "$home/.zshrc_original" \
 
 {{ if .config.tools.enabled.kubernetes -}}
 # hadolint ignore=DL3059
-RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}"
+RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false
 {{- end }}
 
 RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/honeycombio/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh

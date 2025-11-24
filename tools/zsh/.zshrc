@@ -28,8 +28,8 @@ complete -o nospace -C /usr/local/bin/terraform terraform tf
 complete -C /usr/local/bin/aws_completer aws
 
 alias tf=terraform
-# alias k=kubectl
-compdef __start_kubectl k
+alias k=kubectl
+compdef k=kubectl
 
 if [[ -n "$AWS_VAULT" ]]; then
   echo -ne "\033]30;$AWS_VAULT\007"

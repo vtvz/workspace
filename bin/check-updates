@@ -123,7 +123,7 @@ op update
 if [[ $applied -ne 0 ]]; then
   echo "${red}${bold}Rebuild your Docker image with new versions${reset}"
   echo "${red}${bold}Don't forget to push updates to git repo${reset}"
-  echo "${red}${bold}( cd .ws && git add config.yaml && git commit -m 'Tools upgrade' && git push )${reset}"
+  echo "${red}${bold}( just ws build && cd .ws && git add config.yaml && git commit -m 'Tools upgrade' && git push )${reset}"
 elif [[ $available -ne 0 ]]; then
   echo "${red}${bold}New (${available}) updates are available${reset}"
 fi

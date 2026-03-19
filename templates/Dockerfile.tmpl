@@ -29,7 +29,7 @@
 {{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
 {{ $yq := index $github "mikefarah/yq" -}}
-{{ $gritql := index $github "honeycombio/gritql" -}}
+{{ $gritql := index $github "biomejs/gritql" -}}
 {{ $lefthook := index $github "evilmartians/lefthook" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
@@ -70,7 +70,7 @@ RUN apt-get update \
 FROM {{ .config.image }} AS core
 
 {{ template "apt-get install" (
-  slice
+  coll.Slice
     "autoconf"
     "automake"
     "bash"
@@ -299,7 +299,7 @@ RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ 
 
 FROM core AS build
 
-{{ template "apt-get install" (slice "python3" "python3-pip") }}
+{{ template "apt-get install" (coll.Slice "python3" "python3-pip") }}
 
 {{ template "apt-get install" .config.extraPackages }}
 
@@ -456,7 +456,7 @@ RUN mv "$home/.zshrc" "$home/.zshrc_original" \
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false
 {{- end }}
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/honeycombio/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
+RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/biomejs/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"

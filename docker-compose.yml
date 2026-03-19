@@ -1,8 +1,10 @@
 services:
   workspace:
+    network_mode: host
     build:
       context: .
       dockerfile: .ws/var/Dockerfile
+      network: host
       args:
         workdir: /workspace
     volumes:

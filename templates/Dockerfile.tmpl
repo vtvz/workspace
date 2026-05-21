@@ -456,7 +456,7 @@ RUN mv "$home/.zshrc" "$home/.zshrc_original" \
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false
 {{- end }}
 
-RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/biomejs/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
+# RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/biomejs/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
 
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"

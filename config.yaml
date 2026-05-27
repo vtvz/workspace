@@ -11,9 +11,9 @@ image: ubuntu:24.04
 tools:
   kubernetes/kubectl: 1.31.0
   1password: 1.12.9
-  aws/aws-cli: 2.34.47
+  aws/aws-cli: 2.34.54
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
-  gnu/parallel: 20260422
+  gnu/parallel: 20260522
 
   zsh-users/zsh-autosuggestions: 0.7.0
   zsh-users/zsh-syntax-highlighting: 0.8.0
@@ -33,8 +33,8 @@ tools:
       - "github.com/hashicorp/amazon"
 
   github:
-    hashicorp/terraform: 1.15.3
-    gruntwork-io/terragrunt: 1.0.4
+    hashicorp/terraform: 1.15.4
+    gruntwork-io/terragrunt: 1.0.6
     terraform-linters/tflint: 0.62.1
     terraform-linters/tflint-ruleset-aws: 0.47.0
     GoogleCloudPlatform/terraformer: 0.8.30
@@ -44,14 +44,14 @@ tools:
     plumber-cd/terraform-backend-git: 0.1.11
     hashicorp/packer: 1.15.3
     biomejs/gritql: 0.0.3
-    evilmartians/lefthook: 2.1.6
+    evilmartians/lefthook: 2.1.8
 
     helm/helm: 4.2.0
     roboll/helmfile: 0.144.0
     databus23/helm-diff: 3.15.7
     ahmetb/kubectx: 0.11.0
     argoproj/argo-cd: 3.4.2
-    crossplane/crossplane: 2.2.1
+    crossplane/crossplane: 2.3.1
     ahmetb/kubectl-tree: 0.6.0
     tohjustin/kube-lineage: 0.5.0
     itaysk/kubectl-neat: 2.0.4
@@ -61,24 +61,24 @@ tools:
     hadolint/hadolint: 2.14.0
     gitleaks/gitleaks: 8.30.1
 
-    go-task/task: 3.50.0
+    go-task/task: 3.51.1
     casey/just: 1.51.0
     direnv/direnv: 2.37.1
     starship/starship: 1.25.1
     AstroNvim/AstroNvim: 6.0.4
-    junegunn/fzf: 0.72.0
+    junegunn/fzf: 0.73.1
     gsamokovarov/jump: 0.67.0
     mikefarah/yq: 4.53.2
 
-    getsops/sops: 3.13.0
+    getsops/sops: 3.13.1
     FiloSottile/age: 1.3.1
     harness/drone-cli: 1.9.0
-    hashicorp/vault: 2.0.0
+    hashicorp/vault: 2.0.1
 
   pip:
     pre-commit: 4.6.0
     yamllint: 1.38.0
-    ansible: 13.6.0
+    ansible: 13.7.0
     hvac: 2.4.0
     ansible-lint: 26.4.0
     passlib[bcrypt]: 1.7.4

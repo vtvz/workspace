@@ -6,6 +6,9 @@ workdir := "/workspace"
 just := quote(just_executable())
 this := just + " -f " + quote(justfile())
 
+# Recipe prefix for self-invocations: "ws::" when loaded as a module, "" standalone
+ns := if module_path() == "" { "" } else { module_path() + "::" }
+
 # Show this help
 @help:
   {{ this }} --list --unsorted
@@ -24,17 +27,17 @@ git-cleanup:
 # Build/rebuild templates and docker image
 [no-cd]
 build:
-  {{ this }} ws::build-dotenv
-  {{ this }} ws::build-dockerfile
-  {{ this }} ws::compose build
+  {{ this }} {{ ns }}build-dotenv
+  {{ this }} {{ ns }}build-dockerfile
+  {{ this }} {{ ns }}compose build
 
 [no-cd, private]
 build-dockerfile:
-  {{ this }} ws gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"
+  {{ this }} {{ ns }}gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"
 
 [no-cd]
 build-dotenv:
-  {{ this }} ws gomplate "-f .ws/templates/.env.tmpl -o .ws.env"
+  {{ this }} {{ ns }}gomplate "-f .ws/templates/.env.tmpl -o .ws.env"
 
 [no-cd, private]
 @compose *args:
@@ -42,16 +45,15 @@ build-dotenv:
 
 [no-cd]
 validate:
-  {{ this }} ws::build-dockerfile
-  -cat .ws/var/Dockerfile | {{ this }} ws::compose run --rm -T {{ container }} hadolint -
-  -{{ this }} ws::compose run --rm {{ container }} pre-commit run
+  {{ this }} {{ ns }}build-dockerfile
+  -cat .ws/var/Dockerfile | {{ this }} {{ ns }}compose run --rm -T {{ container }} hadolint -
 
 alias sh := shell
 
 # Run zsh terminal inside container
 [no-cd]
 shell:
-  {{ this }} ws::compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
+  {{ this }} {{ ns }}compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
 
 # Switch to AWS profile using aws-vault
 [no-cd]
@@ -61,16 +63,12 @@ profile profile="" +cmd="$SHELL":
   flock -x "$lock_fd"
   cd {{ invocation_directory() }}
   aws-vault exec --duration=8h \
-    $({{ if profile != "" { "echo " + quote(profile) } else { this + " ws gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
+    $({{ if profile != "" { "echo " + quote(profile) } else { this + " " + ns + "gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
 # Run zsh in AWS profile
 [no-cd]
 psh profile="":
-  {{ this }} ws::profile {{ quote(profile) }} {{ this }} ws::shell
-
-[no-cd]
-profiles:
-  {{ this + " ws gomplate \"-i '{{ .config.awsVaultProfiles | toJSON }}' --exec-pipe -- tr -d '\r'\"" }}
+  {{ this }} {{ ns }}profile {{ quote(profile) }} {{ this }} {{ ns }}shell
 
 [no-cd, private]
 @gomplate args:
@@ -85,7 +83,7 @@ profiles:
 [no-cd]
 install:
   @[ ! -L "{{ justfile_directory() }}/.ws" ] || (echo "Should be ran in the project itself" && false)
-  {{ this }} ws::init
+  {{ this }} {{ ns }}init
   -ln -s {{ file_name(justfile_directory()) }}/.gitleaks.toml ../.gitleaks.toml
   touch {{ justfile_directory() }}/.env
   cp -f {{ justfile_directory() }}/.ws/tools/.tflint.hcl {{ quote(home_directory() + "/.tflint.hcl") }}
@@ -99,5 +97,5 @@ update:
   set -x
   git pull origin master
   cd ..
-  {{ just }} ws::install
-  {{ this }} ws::build
+  {{ this }} {{ ns }}install
+  {{ this }} {{ ns }}build

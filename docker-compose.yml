@@ -19,7 +19,8 @@ services:
       - .ws/var/helm:/home/user/.cache/helm
       - /var/run/docker.sock:/var/run/docker.sock
     env_file:
-      - .env
+      - path: .env
+        required: false
       - .ws.env
     environment:
       AWS_VAULT: ${AWS_VAULT:-}

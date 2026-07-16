@@ -6,15 +6,9 @@ A handy tools for your daily DevOps routine.
 
 - [docker](https://docs.docker.com/engine/install/)
 - [docker-compose](https://docs.docker.com/compose/install/)
-- [just](https://github.com/casey/just#installation)
+- [just](https://github.com/casey/just#installation) (1.31+)
 
 ## Install
-
-### Add this to your zshrc or bashrc
-
-```bash
-export JUST_UNSTABLE=true
-```
 
 ### Add this to your Justfile
 

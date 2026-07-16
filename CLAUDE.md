@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 "Workspace" — a portable, dockerized DevOps toolbox (github.com/vtvz/workspace). It is cloned as a `.ws` subdirectory into host projects and exposed as a `just` module via `mod? ws '.ws/Justfile'` in the host project's Justfile. This repo is independent of the host project around it — do not treat parent-directory files as part of this project.
 
-All commands are run from the **host project root** as `just ws <command>` (requires `JUST_UNSTABLE=true` for module support).
+Commands are run from the **host project root** as `just ws <command>` (requires just 1.31+ for modules), or standalone from inside this repo as plain `just <command>` — no host project needed. Two things make standalone work: the committed `.ws → .` symlink (so the `.ws/...` paths in recipes resolve to this repo itself) and the `ns` variable (expands to `ws::` when loaded as a module, empty standalone). `install`/`update` remain embedded-only — the install guard rejects running inside this repo.
 
 ## Commands
 
@@ -18,7 +18,7 @@ just ws build            # Render templates and build the Docker image
 just ws shell            # zsh inside the container (alias: just ws sh)
 just ws profile [name]   # Wrap shell in aws-vault exec (default profile from config awsVaultProfiles[0])
 just ws psh [name]       # profile + shell combined
-just ws validate         # hadolint the rendered Dockerfile + run pre-commit
+just ws validate         # hadolint the rendered Dockerfile
 just ws update           # git pull this repo, re-install, rebuild
 just ws git-cleanup      # Delete local branches whose remote is gone
 ```

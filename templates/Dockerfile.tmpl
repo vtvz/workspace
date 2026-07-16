@@ -209,6 +209,7 @@ RUN curl -fL "https://github.com/corneliusweig/ketall/releases/download/v{{ $ket
     && mv ketall-amd64-linux /tmp/ketall
 
 FROM core AS eksctl
+# hadolint ignore=DL4006
 RUN curl -fL "https://github.com/eksctl-io/eksctl/releases/download/v{{ $eksctl }}/eksctl_Linux_amd64.tar.gz" | tar zx \
     && mv eksctl /tmp/eksctl
 
@@ -281,6 +282,7 @@ RUN cd /opt && curl -fL "https://dl.google.com/dl/cloudsdk/channels/rapid/downlo
 {{- end }}
 
 FROM core AS awscliv2
+# hadolint ignore=DL3003,SC3044
 RUN tmp="$(mktemp -d)" \
     && cd "$tmp" \
     && curl -Lf "https://awscli.amazonaws.com/awscli-exe-linux-x86_64-{{ $awscli }}.zip" -o "awscliv2.zip" \
@@ -290,11 +292,13 @@ RUN tmp="$(mktemp -d)" \
     && rm -rf "$tmp"
 
 FROM core AS parallel
+# hadolint ignore=DL3003,DL4006
 RUN cd "/tmp" \
     && curl https://mirror.bahnhof.net/pub/gnu/parallel/parallel-{{ $parallel }}.tar.bz2 | tar xvj \
     && mv parallel-{{ $parallel }} parallel
 
 FROM core AS neovim
+# hadolint ignore=DL3003,DL4006
 RUN cd /opt && curl -fL "https://github.com/neovim/neovim/releases/download/v{{ $neovim }}/nvim-linux-x86_64.tar.gz" | tar zx
 
 FROM core AS build
@@ -328,6 +332,7 @@ RUN --mount=type=bind,from=awscliv2,source=/tmp/awscliv2,target=/tmp/awscliv2 /t
 
 ENV AWS_CLI_VERSION="{{ $awscli }}"
 
+# hadolint ignore=DL3003
 RUN --mount=type=bind,from=parallel,source=/tmp/parallel,target=/tmp/parallel-ro cp -R /tmp/parallel-ro /tmp/parallel \
     && cd /tmp/parallel \
     && ./configure --prefix=/usr/local \
@@ -393,6 +398,7 @@ COPY --from=neovim /opt/nvim-linux-x86_64 /opt/neovim
 RUN ln -s /opt/neovim/bin/nvim /usr/local/bin/nvim
 
 {{ range $plugin := .config.tools.packer.plugins -}}
+# hadolint ignore=DL3059
 RUN packer plugins install "{{ $plugin }}"
 {{ end -}}
 
@@ -415,7 +421,8 @@ RUN completion="/usr/share/zsh/functions/Completion" \
     && helm completion zsh > "$completion/_helm.zsh"
 {{- end }}
 
-RUN just --completions zsh > "$completion/_just.zsh" \
+RUN completion="/usr/share/zsh/functions/Completion" \
+    && just --completions zsh > "$completion/_just.zsh" \
     && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
     && mkdir -p /usr/share/fzf/ \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \

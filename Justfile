@@ -57,17 +57,17 @@ shell:
 
 # Switch to AWS profile using aws-vault
 [no-cd]
-profile profile="" +cmd="$SHELL":
+profile profile +cmd="$SHELL":
   #!/bin/bash -eu
   exec {lock_fd}>/tmp/{{ file_name(invocation_directory()) }}.lock
   flock -x "$lock_fd"
   cd {{ invocation_directory() }}
   aws-vault exec --duration=8h \
-    $({{ if profile != "" { "echo " + quote(profile) } else { this + " " + ns + "gomplate \"-i '{{ index .config.awsVaultProfiles 0 }}' --exec-pipe -- tr -d '\r'\"" } }}) -- sh -c "flock -u $lock_fd; {{ cmd }}";
+    {{ quote(profile) }} -- sh -c "flock -u $lock_fd; {{ cmd }}";
 
 # Run zsh in AWS profile
 [no-cd]
-psh profile="":
+psh profile:
   {{ this }} {{ ns }}profile {{ quote(profile) }} {{ this }} {{ ns }}shell
 
 [no-cd, private]

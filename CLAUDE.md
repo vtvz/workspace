@@ -16,8 +16,8 @@ Commands are run from the **host project root** as `just ws <command>` (requires
 just ws install          # One-time setup in a host project (symlinks, git excludesFile, tflint config)
 just ws build            # Render templates and build the Docker image
 just ws shell            # zsh inside the container (alias: just ws sh)
-just ws profile [name]   # Wrap shell in aws-vault exec (default profile from config awsVaultProfiles[0])
-just ws psh [name]       # profile + shell combined
+just ws profile <name>   # Wrap shell in aws-vault exec (profile name required)
+just ws psh <name>       # profile + shell combined
 just ws validate         # hadolint the rendered Dockerfile
 just ws update           # git pull this repo, re-install, rebuild
 just ws git-cleanup      # Delete local branches whose remote is gone

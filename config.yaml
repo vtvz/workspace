@@ -1,6 +1,4 @@
 ---
-awsVaultProfiles: [default]
-
 shell: zsh
 username: vtvz
 

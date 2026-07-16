@@ -2,7 +2,6 @@
 shell: zsh
 username: vtvz
 
-# Use "alpine" if you don't need tests
 image: ubuntu:24.04
 
 # Adding new tools require changing Dockerfile.tmpl

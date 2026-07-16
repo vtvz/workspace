@@ -30,11 +30,11 @@ build prebuild='false':
     cat .ws/var/Dockerfile \
       | grep -P "^FROM .* AS .*" \
       | sed 's/FROM .* AS //' \
-      | DOCKER_BUILDKIT=1 xargs -n1 -I {} docker build --progress plain -t ws -f .ws/var/Dockerfile --target {} .; \
+      | DOCKER_BUILDKIT=1 BUILDX_BUILDER=${BUILDX_BUILDER:-default} xargs -n1 -I {} docker build --progress plain -t ws -f .ws/var/Dockerfile --target {} .; \
   fi
 
   if [[ {{ quote(prebuild) }} != "true" ]] && [[ {{ quote(prebuild) }} != "false" ]]; then \
-    DOCKER_BUILDKIT=1 docker build --progress plain -t ws -f .ws/var/Dockerfile . --target {{ prebuild }}; \
+    DOCKER_BUILDKIT=1 BUILDX_BUILDER=${BUILDX_BUILDER:-default} docker build --progress plain -t ws -f .ws/var/Dockerfile . --target {{ prebuild }}; \
   else \
     {{ this }} ws::compose build; \
   fi
@@ -49,7 +49,7 @@ build-dotenv:
 
 [no-cd, private]
 @compose *args:
-  COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}
+  COMPOSE_DOCKER_CLI_BUILD=1 DOCKER_BUILDKIT=1 BUILDX_BUILDER=${BUILDX_BUILDER:-default} docker-compose --project-directory {{ invocation_directory() }} -f .ws/docker-compose.yml {{ args }}
 
 [no-cd]
 validate:

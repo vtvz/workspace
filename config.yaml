@@ -2,7 +2,7 @@
 shell: zsh
 username: vtvz
 
-image: ubuntu:24.04
+image: ubuntu:26.04
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
@@ -88,9 +88,4 @@ dotenv:
   OP_PASSWORD: ""
   GH_BASIC_AUTH: ""
 
-extraPackages:
-  - rsync
-  - graphviz
-  - autoconf
-  - automake
-  - groff
+extraPackages: []

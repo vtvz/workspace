@@ -21,23 +21,12 @@ init:
 git-cleanup:
   git fetch -p && git branch --format='%(refname:short)%09%(upstream:track)' | grep -e '\[gone\]$' | awk '{print $1}' | xargs git branch -D
 
-# nuild/rebuild templates and docker image
+# Build/rebuild templates and docker image
 [no-cd]
-build prebuild='false':
+build:
   {{ this }} ws::build-dotenv
   {{ this }} ws::build-dockerfile
-  if [[ {{ quote(prebuild) }} == "true" ]]; then \
-    cat .ws/var/Dockerfile \
-      | grep -P "^FROM .* AS .*" \
-      | sed 's/FROM .* AS //' \
-      | DOCKER_BUILDKIT=1 BUILDX_BUILDER=${BUILDX_BUILDER:-default} xargs -n1 -I {} docker build --progress plain -t ws -f .ws/var/Dockerfile --target {} .; \
-  fi
-
-  if [[ {{ quote(prebuild) }} != "true" ]] && [[ {{ quote(prebuild) }} != "false" ]]; then \
-    DOCKER_BUILDKIT=1 BUILDX_BUILDER=${BUILDX_BUILDER:-default} docker build --progress plain -t ws -f .ws/var/Dockerfile . --target {{ prebuild }}; \
-  else \
-    {{ this }} ws::compose build; \
-  fi
+  {{ this }} ws::compose build
 
 [no-cd, private]
 build-dockerfile:

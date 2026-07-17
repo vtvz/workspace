@@ -174,7 +174,6 @@ RUN {{ $curl }} "https://github.com/argoproj/argo-cd/releases/download/v{{ $argo
     && chmod +x /tmp/argocd
 
 FROM core AS crossplane
-# hadolint ignore=DL4006
 RUN {{ $curl }} "https://releases.crossplane.io/stable/v{{ $crossplane }}/bin/linux_amd64/crank" -o /tmp/kubectl-crossplane \
     && chmod +x /tmp/kubectl-crossplane
 
@@ -234,7 +233,6 @@ RUN --mount=type=bind,from=golang,source=/tmp/golang-package.tar.gz,target=/tmp/
 
 {{ if .config.tools.enabled.terraformer -}}
 FROM core AS terraformer
-#hadolint ignore=DL4006
 RUN {{ $curl }} "https://github.com/GoogleCloudPlatform/terraformer/releases/download/{{ $terraformer }}/terraformer-all-linux-amd64" -o /tmp/terraformer \
     && chmod +x /tmp/terraformer
 {{- end }}
@@ -256,7 +254,6 @@ RUN {{ $curl }} "https://github.com/zricethezav/gitleaks/releases/download/v{{ $
     && mv gitleaks /tmp
 
 FROM core AS terraform_backend_git
-# hadolint ignore=DL4006
 RUN {{ $curl }} "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64" -o /tmp/terraform-backend-git \
     && chmod +x /tmp/terraform-backend-git
 
@@ -333,11 +330,9 @@ RUN --mount=type=bind,from=parallel,source=/tmp/parallel,target=/tmp/parallel-ro
 
 ENV PARALLEL_VERSION="{{ $parallel }}"
 
-# hadolint ignore=DL3059
 RUN mkdir -p /etc/tflint.d/plugins
 ENV TFLINT_PLUGIN_DIR=/etc/tflint.d/plugins
 
-# hadolint ignore=DL4006
 RUN sh -c "$({{ $curl }} -sS "https://raw.githubusercontent.com/starship/starship/v{{ $starship }}/install/install.sh")" -- -y -v "v{{ $starship }}"
 
 COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/terraform
@@ -444,7 +439,6 @@ RUN mv "$home/.zshrc" "$home/.zshrc_original" \
     && ln -s "$workdir/.ws/tools/zsh/.zshrc" "$home/.zshrc"
 
 {{ if .config.tools.enabled.kubernetes -}}
-# hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false
 {{- end }}
 

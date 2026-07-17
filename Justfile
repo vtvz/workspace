@@ -56,7 +56,7 @@ alias sh := shell
 # Run zsh terminal inside container
 [no-cd]
 shell:
-  {{ this }} {{ ns }}compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
+  @{{ this }} {{ ns }}compose run -w {{ workdir }}/`realpath --relative-to={{ justfile_directory() }} {{ invocation_directory() }}` --rm -e SHELL=zsh {{ container }} zsh
 
 # Switch to AWS profile using aws-vault
 [no-cd]
@@ -71,7 +71,7 @@ profile profile +cmd="$SHELL":
 # Run zsh in AWS profile
 [no-cd]
 psh profile:
-  {{ this }} {{ ns }}profile {{ quote(profile) }} {{ this }} {{ ns }}shell
+  @{{ this }} {{ ns }}profile {{ quote(profile) }} {{ this }} {{ ns }}shell
 
 [no-cd, private]
 @gomplate args:

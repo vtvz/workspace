@@ -35,6 +35,9 @@ command = "whoami"
 when = "true"
 format = "[ $output's workspace ](bg:#1380EC fg:#1e1e1e bold) "
 
+[package]
+disabled = true
+
 [git_branch]
 disabled = true
 

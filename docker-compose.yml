@@ -15,6 +15,7 @@ services:
       - .ws/var/kube:/home/user/.kube
       - .ws/tools/.tflint.hcl:/home/user/.tflint.hcl
       - .ws/var/zsh:/home/user/.zsh_tmp
+      - .ws/var/nvim:/home/user/.local/share/nvim
       - .ws/var/jump:/home/user/.jump
       - .ws/var/packer:/home/user/.config/packer
       - .ws/var/helm:/home/user/.cache/helm

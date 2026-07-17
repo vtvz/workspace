@@ -63,7 +63,6 @@ tools:
     casey/just: 1.56.0
     direnv/direnv: 2.37.1
     starship/starship: 1.26.0
-    AstroNvim/AstroNvim: 6.0.5
     junegunn/fzf: 0.74.0
     gsamokovarov/jump: 0.67.0
     mikefarah/yq: 4.53.3

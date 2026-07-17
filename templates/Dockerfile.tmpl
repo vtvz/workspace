@@ -295,7 +295,7 @@ RUN {{ $curl }} "https://github.com/neovim/neovim/releases/download/v{{ $neovim 
 
 FROM core AS build
 
-{{ template "apt-get install" (coll.Slice "python3" "python3-pip") }}
+{{ template "apt-get install" (coll.Slice "python3" "python3-pip" "gcc") }}
 
 {{ if .config.extraPackages -}}
 {{ template "apt-get install" .config.extraPackages }}
@@ -445,6 +445,10 @@ RUN sh -c "$({{ $curl }} -sS https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/m
 
 RUN mv "$home/.zshrc" "$home/.zshrc_original" \
     && ln -s "$workdir/.ws/tools/zsh/.zshrc" "$home/.zshrc"
+
+# AstroNvim starter config; plugins bootstrap on first nvim launch into the mounted ~/.local/share/nvim
+RUN git clone --depth 1 https://github.com/AstroNvim/template "$home/.config/nvim" \
+    && rm -rf "$home/.config/nvim/.git"
 
 {{ if .config.tools.enabled.kubernetes -}}
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false

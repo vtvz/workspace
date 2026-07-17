@@ -26,7 +26,6 @@
 {{ $terraform_backend_git := index $github "plumber-cd/terraform-backend-git" -}}
 {{ $age := index $github "FiloSottile/age" -}}
 {{ $vault := index $github "hashicorp/vault" -}}
-{{ $aws_nuke := index $github "rebuy-de/aws-nuke" -}}
 {{ $jump := index $github "gsamokovarov/jump" -}}
 {{ $yq := index $github "mikefarah/yq" -}}
 {{ $gritql := index $github "biomejs/gritql" -}}
@@ -37,7 +36,6 @@
 {{ $kubectl_neat := index $github "itaysk/kubectl-neat" -}}
 {{ $ketall := index $github "corneliusweig/ketall" -}}
 {{ $eksctl := index $github "eksctl-io/eksctl" -}}
-{{ $astronvim := index $github "AstroNvim/AstroNvim" -}}
 
 {{ $op := index .config.tools "1password" -}}
 {{ $kubectl := index .config.tools "kubernetes/kubectl" -}}
@@ -83,8 +81,6 @@ FROM {{ .config.image }} AS core
 }}
 
 SHELL ["/bin/bash", "-o", "pipefail", "-c"]
-
-ENV EDITOR nano
 
 FROM core AS terragrunt
 RUN curl -fL "https://github.com/gruntwork-io/terragrunt/releases/download/v{{ $terragrunt }}/terragrunt_linux_amd64" -o /tmp/terragrunt \
@@ -248,7 +244,7 @@ RUN curl -fL "https://github.com/harness/drone-cli/releases/download/v{{ $drone 
     && cp drone /tmp
 
 FROM core AS sops
-RUN curl -fL "https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux.amd64"  -o /tmp/sops \
+RUN curl -fL "https://github.com/getsops/sops/releases/download/v{{ $sops }}/sops-v{{ $sops }}.linux.amd64" -o /tmp/sops \
     && chmod +x /tmp/sops
 
 FROM core AS gitleaks
@@ -258,7 +254,7 @@ RUN curl -fL "https://github.com/zricethezav/gitleaks/releases/download/v{{ $git
 
 FROM core AS terraform_backend_git
 # hadolint ignore=DL4006
-RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64"  -o /tmp/terraform-backend-git \
+RUN curl -fL "https://github.com/plumber-cd/terraform-backend-git/releases/download/v{{ $terraform_backend_git }}/terraform-backend-git-linux-amd64" -o /tmp/terraform-backend-git \
     && chmod +x /tmp/terraform-backend-git
 
 FROM core AS age
@@ -285,7 +281,7 @@ RUN tmp="$(mktemp -d)" \
 FROM core AS parallel
 # hadolint ignore=DL3003,DL4006
 RUN cd "/tmp" \
-    && curl "https://mirror.bahnhof.net/pub/gnu/parallel/parallel-{{ $parallel }}.tar.bz2" | tar xvj \
+    && curl -fL "https://mirror.bahnhof.net/pub/gnu/parallel/parallel-{{ $parallel }}.tar.bz2" | tar xvj \
     && mv parallel-{{ $parallel }} parallel
 
 FROM core AS neovim
@@ -337,7 +333,7 @@ ENV PARALLEL_VERSION="{{ $parallel }}"
 
 # hadolint ignore=DL3059
 RUN mkdir -p /etc/tflint.d/plugins
-ENV TFLINT_PLUGIN_DIR /etc/tflint.d/plugins
+ENV TFLINT_PLUGIN_DIR=/etc/tflint.d/plugins
 
 # hadolint ignore=DL4006
 RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
@@ -382,8 +378,6 @@ COPY --from=terraform_backend_git /tmp/terraform-backend-git /usr/local/bin/terr
 COPY --from=age /tmp/age /usr/local/bin/age
 COPY --from=age /tmp/age-keygen /usr/local/bin/age-keygen
 COPY --from=hashicorp/vault:{{ $vault }} /bin/vault /usr/local/bin/vault
-{{ if $aws_nuke -}}
-{{- end }}
 COPY --from=jump /tmp/jump /usr/local/bin/jump
 COPY --from=yq /tmp/yq /usr/local/bin/yq
 COPY --from=neovim /opt/nvim-linux-x86_64 /opt/neovim
@@ -407,7 +401,8 @@ ENV GITHUB_VERSIONS='{{ $github | toJSON }}'
 ENV PIP_VERSIONS='{{ .config.tools.pip | toJSON }}'
 
 {{ if .config.tools.enabled.kubernetes -}}
-RUN completion="/usr/share/zsh/functions/Completion" \
+RUN ln -s /usr/local/bin/kubectl /usr/local/bin/k \
+    && completion="/usr/share/zsh/functions/Completion" \
     && kubectl completion zsh > "$completion/_kubectl.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubens.zsh" -o "$completion/_kubens.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/ahmetb/kubectx/v{{ $kubectx }}/completion/_kubectx.zsh" -o "$completion/_kubectx.zsh" \
@@ -421,8 +416,6 @@ RUN completion="/usr/share/zsh/functions/Completion" \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh" \
     && curl -fsL "https://raw.githubusercontent.com/go-task/task/v{{ $taskfile }}/completion/zsh/_task" -o "/usr/local/share/zsh/site-functions/_task"
-
-RUN ln -s /usr/local/bin/kubectl /usr/local/bin/k
 
 ARG home="/home/user"
 RUN usermod --home "$home" --shell /usr/bin/zsh --login {{ .config.username }} ubuntu \
@@ -448,9 +441,6 @@ RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master
 RUN mv "$home/.zshrc" "$home/.zshrc_original" \
     && ln -s "$workdir/.ws/tools/zsh/.zshrc" "$home/.zshrc"
 
-# RUN git clone --depth 1 --branch v{{ $astronvim }} https://github.com/AstroNvim/AstroNvim ~/.config/nvim \
-#    && git clone --depth 1 https://github.com/vtvz/astronvim ~/.config/astronvim/lua
-
 {{ if .config.tools.enabled.kubernetes -}}
 # hadolint ignore=DL3059
 RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ $helm_diff }}" --verify=false
@@ -458,7 +448,6 @@ RUN helm plugin install "https://github.com/databus23/helm-diff" --version "v{{ 
 
 # RUN curl --proto '=https' --tlsv1.2 -LsSf https://github.com/biomejs/gritql/releases/download/v{{ $gritql }}/grit-installer.sh | sh
 
-ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV PATH="$workdir/.ws/bin:${PATH}"
 ENV DIRENV_CONFIG="$workdir/.ws/tools/direnv"
 ENV STARSHIP_CONFIG="$workdir/.ws/tools/starship/config.toml"

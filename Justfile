@@ -31,6 +31,10 @@ build:
   {{ this }} {{ ns }}build-dockerfile
   {{ this }} {{ ns }}compose build
 
+[no-cd]
+build-till-success:
+  until {{ this }} {{ ns }}build; do sleep 1; done
+
 [no-cd, private]
 build-dockerfile:
   {{ this }} {{ ns }}gomplate "-f .ws/templates/Dockerfile.tmpl -o .ws/var/Dockerfile"

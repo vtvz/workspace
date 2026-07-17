@@ -15,7 +15,6 @@ ns := if module_path() == "" { "" } else { module_path() + "::" }
 
 [no-cd]
 init:
-  -pre-commit install --allow-missing-config
   docker -v
   docker-compose -v
 

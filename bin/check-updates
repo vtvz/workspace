@@ -2,9 +2,16 @@
 
 set -euo pipefail
 
-action=${1:-check}
+if [[ ! -f .ws/config.yaml ]]; then
+  echo "Run from the project root: .ws/config.yaml not found" >&2
+  exit 1
+fi
 
-available=0
+if ! gh auth status &>/dev/null; then
+  echo "GitHub auth required: set GH_TOKEN or run 'gh auth login'" >&2
+  exit 1
+fi
+
 applied=0
 
 red=$(tput setaf 1)
@@ -25,29 +32,18 @@ function check {
 
   if [[ "$latest" != "$current" ]]; then
     echo "${red}* Update for $repo available $latest (current $current)${reset}"
-    available=$((available + 1))
-
-    if [[ -f .ws.config.yaml && $action == "apply" ]]; then
-      sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws/config.yaml
-      applied=$((applied + 1))
-    fi
+    sed -i --follow-symlinks "s|\(\s*\)$repo: .*|\1$repo: $latest|g" .ws/config.yaml
+    applied=$((applied + 1))
   else
     echo "${green}- $repo up to date ($current)${reset}"
   fi
-
 }
 
 function github {
   repo=$1
   path=$2
-  curl --config "${curl_cfg}" -sf --show-error "https://api.github.com/repos/${repo}/${path}" "${@:3}"
+  gh api "repos/${repo}/${path}" "${@:3}"
 }
-
-curl_cfg=$(mktemp)
-if [[ -n "${GH_BASIC_AUTH:-}" ]]; then
-  echo "user = \"$GH_BASIC_AUTH\"" >"$curl_cfg"
-fi
-trap 'rv=$?; rm -f $curl_cfg; exit $rv' 0 2 3 15
 
 for component in $(echo "$GITHUB_VERSIONS" | jq -cM 'to_entries | .[]'); do
   repo=$(echo "$component" | jq -r '.key')
@@ -124,8 +120,6 @@ if [[ $applied -ne 0 ]]; then
   echo "${red}${bold}Rebuild your Docker image with new versions${reset}"
   echo "${red}${bold}Don't forget to push updates to git repo${reset}"
   echo "${red}${bold}( just ws build && cd .ws && git add config.yaml && git commit -m 'Tools upgrade' && git push )${reset}"
-elif [[ $available -ne 0 ]]; then
-  echo "${red}${bold}New (${available}) updates are available${reset}"
 fi
 
-exit $available
+exit $applied

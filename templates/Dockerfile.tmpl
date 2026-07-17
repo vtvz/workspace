@@ -30,6 +30,7 @@
 {{ $yq := index $github "mikefarah/yq" -}}
 {{ $gritql := index $github "biomejs/gritql" -}}
 {{ $lefthook := index $github "evilmartians/lefthook" -}}
+{{ $gh := index $github "cli/cli" -}}
 
 {{ $kubectl_tree := index $github "ahmetb/kubectl-tree" -}}
 {{ $kube_lineage := index $github "tohjustin/kube-lineage" -}}
@@ -91,6 +92,11 @@ RUN {{ $curl }} "https://github.com/gruntwork-io/terragrunt/releases/download/v{
 FROM core AS lefthook
 RUN {{ $curl }} "https://github.com/evilmartians/lefthook/releases/download/v{{ $lefthook }}/lefthook_{{ $lefthook }}_Linux_x86_64" -o /tmp/lefthook \
     && chmod +x /tmp/lefthook
+
+FROM core AS gh
+RUN {{ $curl }} "https://github.com/cli/cli/releases/download/v{{ $gh }}/gh_{{ $gh }}_linux_amd64.tar.gz" -o /tmp/dl.tar.gz \
+    && tar zxf /tmp/dl.tar.gz && rm /tmp/dl.tar.gz \
+    && mv "gh_{{ $gh }}_linux_amd64/bin/gh" /tmp/gh
 
 FROM core AS tflint
 RUN {{ $curl }} "https://github.com/terraform-linters/tflint/releases/download/v{{ $tflint }}/tflint_linux_amd64.zip" -o /tmp/tflint.zip \
@@ -339,6 +345,7 @@ COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/t
 COPY --from=hashicorp/packer:{{ $packer }} /bin/packer /usr/local/bin/packer
 COPY --from=terragrunt /tmp/terragrunt /usr/local/bin/terragrunt
 COPY --from=lefthook /tmp/lefthook /usr/local/bin/lefthook
+COPY --from=gh /tmp/gh /usr/local/bin/gh
 COPY --from=tflint /tmp/tflint /usr/local/bin/tflint
 COPY --from=tflint_aws /tmp/tflint-ruleset-aws $TFLINT_PLUGIN_DIR/tflint-ruleset-aws
 COPY --from=tfsec /tmp/tfsec /usr/local/bin/tfsec
@@ -409,6 +416,7 @@ RUN ln -s /usr/local/bin/kubectl /usr/local/bin/k \
 RUN completion="/usr/share/zsh/functions/Completion" \
     && just --completions zsh > "$completion/_just.zsh" \
     && gitleaks completion zsh > "$completion/_gitleaks.zsh" \
+    && gh completion -s zsh > "$completion/_gh.zsh" \
     && mkdir -p /usr/share/fzf/ \
     && {{ $curl }} -sS "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/key-bindings.zsh" -o "/usr/share/fzf/key-bindings.zsh" \
     && {{ $curl }} -sS "https://raw.githubusercontent.com/junegunn/fzf/v{{ $fzf }}/shell/completion.zsh" -o "/usr/share/fzf/completion.zsh" \

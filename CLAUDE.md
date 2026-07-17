@@ -23,7 +23,7 @@ just ws update           # git pull this repo, re-install, rebuild
 just ws git-cleanup      # Delete local branches whose remote is gone
 ```
 
-`bin/check-updates` runs **inside the container** (needs env vars baked in at build time). `check-updates check` reports outdated tool versions; `check-updates apply` rewrites versions in `config.yaml`. The upgrade flow it prints — rebuild, then commit `config.yaml` with message `Tools upgrade` — is the convention used throughout this repo's history.
+`bin/check-updates` runs **inside the container** (needs env vars baked in at build time) and requires GitHub auth — `GH_TOKEN` in the host project's `.env` or persisted `gh auth login`. `check-updates` reports outdated tool versions and rewrites them in `config.yaml`; it requires `.ws/config.yaml` relative to the CWD (works embedded and standalone via the `.ws` symlink) and GitHub auth. The upgrade flow it prints — rebuild, then commit `config.yaml` with message `Tools upgrade` — is the convention used throughout this repo's history.
 
 ## Architecture
 

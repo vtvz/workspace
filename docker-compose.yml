@@ -11,6 +11,7 @@ services:
       - .:/workspace
       - ~/.ssh:/home/user/.ssh
       - .ws/var/op:/home/user/.config/op
+      - .ws/var/gh:/home/user/.config/gh
       - .ws/var/kube:/home/user/.kube
       - .ws/tools/.tflint.hcl:/home/user/.tflint.hcl
       - .ws/var/zsh:/home/user/.zsh_tmp

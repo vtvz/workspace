@@ -8,7 +8,7 @@ image: ubuntu:26.04
 tools:
   kubernetes/kubectl: 1.36.2
   1password: 1.12.9
-  aws/aws-cli: 2.35.24
+  aws/aws-cli: 2.36.1
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
   gnu/parallel: 20260522
 
@@ -57,6 +57,7 @@ tools:
 
     hadolint/hadolint: 2.14.0
     gitleaks/gitleaks: 8.30.1
+    cli/cli: 2.96.0
 
     go-task/task: 3.52.0
     casey/just: 1.56.0
@@ -86,6 +87,5 @@ dotenv:
   OP_EMAIL: ""
   OP_SECRET_KEY: ""
   OP_PASSWORD: ""
-  GH_BASIC_AUTH: ""
 
 extraPackages: []

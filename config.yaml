@@ -6,7 +6,7 @@ image: ubuntu:26.04
 
 # Adding new tools require changing Dockerfile.tmpl
 tools:
-  kubernetes/kubectl: 1.31.0
+  kubernetes/kubectl: 1.36.2
   1password: 1.12.9
   aws/aws-cli: 2.35.24
   GoogleCloudPlatform/cloud-sdk-docker: 403.0.0
@@ -44,7 +44,7 @@ tools:
     evilmartians/lefthook: 2.1.10
 
     helm/helm: 4.2.3
-    roboll/helmfile: 0.144.0
+    helmfile/helmfile: 1.7.0
     databus23/helm-diff: 3.15.10
     ahmetb/kubectx: 0.11.0
     argoproj/argo-cd: 3.4.5

@@ -84,7 +84,7 @@ check "neovim/neovim" "$current" "$latest"
 # kubectl
 if command -v kubectl &>/dev/null; then
   current=$(kubectl version --client -o json | jq -r '.clientVersion.gitVersion' | sed 's/^v*//g')
-  latest=$(curl -sf --show-error https://storage.googleapis.com/kubernetes-release/release/stable.txt | sed 's/^v*//g')
+  latest=$(curl -sf --show-error https://dl.k8s.io/release/stable.txt | sed 's/^v*//g')
   check "kubernetes/kubectl" "$current" "$latest"
 fi
 

@@ -10,7 +10,7 @@
 {{ $terrascan := index $github "tenable/terrascan" -}}
 {{ $hadolint := index $github "hadolint/hadolint" -}}
 {{ $helm := index $github "helm/helm" -}}
-{{ $helmfile := index $github "roboll/helmfile" -}}
+{{ $helmfile := index $github "helmfile/helmfile" -}}
 {{ $helm_diff := index $github "databus23/helm-diff" -}}
 {{ $kubectx := index $github "ahmetb/kubectx" -}}
 {{ $argocd := index $github "argoproj/argo-cd" -}}
@@ -144,7 +144,7 @@ RUN curl -fL "https://cache.agilebits.com/dist/1P/op/pkg/v{{ $op }}/op_linux_amd
 
 {{ if .config.tools.enabled.kubernetes -}}
 FROM core AS kubectl
-RUN curl -fL "https://storage.googleapis.com/kubernetes-release/release/v{{ $kubectl }}/bin/linux/amd64/kubectl" -o /tmp/kubectl \
+RUN curl -fL "https://dl.k8s.io/release/v{{ $kubectl }}/bin/linux/amd64/kubectl" -o /tmp/kubectl \
     && chmod +x /tmp/kubectl
 
 FROM core AS helm
@@ -153,8 +153,9 @@ RUN curl -fL "https://get.helm.sh/helm-v{{ $helm }}-linux-amd64.tar.gz" | tar zx
     && mv linux-amd64/helm /tmp/helm
 
 FROM core AS helmfile
-RUN curl -fL "https://github.com/roboll/helmfile/releases/download/v{{ $helmfile }}/helmfile_linux_amd64" -o /tmp/helmfile \
-    && chmod +x /tmp/helmfile
+# hadolint ignore=DL4006
+RUN curl -fL "https://github.com/helmfile/helmfile/releases/download/v{{ $helmfile }}/helmfile_{{ $helmfile }}_linux_amd64.tar.gz" | tar zx \
+    && mv helmfile /tmp/helmfile
 
 FROM core AS kubectx
 # hadolint ignore=DL4006
@@ -336,7 +337,7 @@ RUN mkdir -p /etc/tflint.d/plugins
 ENV TFLINT_PLUGIN_DIR=/etc/tflint.d/plugins
 
 # hadolint ignore=DL4006
-RUN sh -c "$(curl -fsSL https://starship.rs/install.sh | sed 's|latest/download|download/v{{ $starship }}|g')" -- -y
+RUN sh -c "$(curl -fsSL "https://raw.githubusercontent.com/starship/starship/v{{ $starship }}/install/install.sh")" -- -y -v "v{{ $starship }}"
 
 COPY --from=hashicorp/terraform:{{ $terraform }} /bin/terraform /usr/local/bin/terraform
 COPY --from=hashicorp/packer:{{ $packer }} /bin/packer /usr/local/bin/packer

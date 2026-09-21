@@ -64,7 +64,7 @@ tools:
     direnv/direnv: 2.37.1
     starship/starship: 1.26.0
     junegunn/fzf: 0.74.4
-    gsamokovarov/jump: 0.69.0
+    gsamokovarov/jump: 0.67.0
     mikefarah/yq: 4.53.6
 
     getsops/sops: 3.13.3

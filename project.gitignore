@@ -4,6 +4,7 @@
 Justfile
 .ws.*
 ws.*
+ws-*
 /.ws
 .idea
 /lib

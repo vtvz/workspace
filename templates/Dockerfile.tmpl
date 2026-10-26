@@ -301,7 +301,7 @@ FROM core AS build
 {{ template "apt-get install" .config.extraPackages }}
 {{- end }}
 
-RUN pip3 install --break-system-packages --no-cache-dir \
+RUN pip3 install --break-system-packages --no-cache-dir --ignore-installed \
     {{ range $p, $v := .config.tools.pip -}}
 {{ $p }}=={{ $v }} \
     {{ end }};
